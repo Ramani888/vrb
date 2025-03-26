@@ -2,8 +2,8 @@ import express from 'express';
 import { MongoClient } from 'mongodb';
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
-// import routes from './routes/routes'
 import cors from 'cors'; // Change to ES module import
+import routes from './routes/routes';
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ database.once('connected', () => {
 
 app.use(cors());
 app.use(express.json());
-// app.use('/api', routes);
+app.use('/api', routes);
 app.get('/', (req, res) => {
   res.json("server working....");
 });
