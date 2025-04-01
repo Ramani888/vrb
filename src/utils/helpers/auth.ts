@@ -11,3 +11,15 @@ export const encryptPassword = (password: string) => {
       });
     });
 };
+
+export const comparePassword = (storedPassword: string, validatePassword: string): Promise<boolean> => {
+  if (storedPassword === validatePassword) {
+      return Promise.resolve(true);
+  }
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(storedPassword, validatePassword, (err: Error | null, res?: boolean) => {
+      if (err) return reject(err);
+      return res === true ? resolve(res) : reject(new Error('Passwords do not match.'));
+    });
+  });
+};
