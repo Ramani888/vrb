@@ -8,6 +8,8 @@ import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv"
 import { addBanner, deleteBanner, getAllBanner, updateBanner } from "../controllers/banner.controller";
 import { addBannerValidation, deleteBannerValidation, updateBannerValidation } from "../utils/validates/banner.validate";
+import { addAdsPoster, deleteAdsPoster, getAllAdsPoster, updateAdsPoster } from "../controllers/adsPoster.controller";
+import { deleteAdsPosterValidation, updateAdsPosterValidation } from "../utils/validates/adsPoster.validate";
 dotenv.config();
 
 enum RouteSource {
@@ -92,8 +94,25 @@ router.get('/banner', (req, res, next) => {
 	getAllBanner(req, res).catch(next);
 })
 
-router.delete('/banner', validateBody(deleteBannerValidation), (req, res, next) => {
+router.delete('/banner', validateBody(deleteBannerValidation, RouteSource?.Query), (req, res, next) => {
 	deleteBanner(req, res).catch(next);
+})
+
+// Ads Poster
+router.post('/ads/poster', upload.single('image'), (req, res, next) => {
+	addAdsPoster(req, res).catch(next);
+})
+
+router.put('/ads/poster', upload.single('image'), validateBody(updateAdsPosterValidation), (req, res, next) => {
+	updateAdsPoster(req, res).catch(next);
+})
+
+router.get('/ads/poster', (req, res, next) => {
+	getAllAdsPoster(req, res).catch(next);
+})
+
+router.delete('/ads/poster', validateBody(deleteAdsPosterValidation, RouteSource?.Query), (req, res, next) => {
+	deleteAdsPoster(req, res).catch(next);
 })
 
 export default router;
