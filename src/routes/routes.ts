@@ -10,6 +10,8 @@ import { addBanner, deleteBanner, getAllBanner, updateBanner } from "../controll
 import { addBannerValidation, deleteBannerValidation, updateBannerValidation } from "../utils/validates/banner.validate";
 import { addAdsPoster, deleteAdsPoster, getAllAdsPoster, updateAdsPoster } from "../controllers/adsPoster.controller";
 import { deleteAdsPosterValidation, updateAdsPosterValidation } from "../utils/validates/adsPoster.validate";
+import { addCategory, deleteCategory, getAllCategory, getCategoryById, updateCategory } from "../controllers/category.controller";
+import { addCategoryValidation, deleteCategoryValidation, getCategoryByIdValidation, updateCategoryValidation } from "../utils/validates/category.validate";
 dotenv.config();
 
 enum RouteSource {
@@ -113,6 +115,27 @@ router.get('/ads/poster', (req, res, next) => {
 
 router.delete('/ads/poster', validateBody(deleteAdsPosterValidation, RouteSource?.Query), (req, res, next) => {
 	deleteAdsPoster(req, res).catch(next);
+})
+
+// Category
+router.post('/category', upload.single('image'), validateBody(addCategoryValidation), (req, res, next) => {
+	addCategory(req, res).catch(next);
+})
+
+router.put('/category', upload.single('image'), validateBody(updateCategoryValidation), (req, res, next) => {
+	updateCategory(req, res).catch(next);
+})
+
+router.get('/category', (req, res, next) => {
+	getAllCategory(req, res).catch(next);
+})
+
+router.get('/category/alone', validateBody(getCategoryByIdValidation, RouteSource?.Query), (req, res, next) => {
+	getCategoryById(req, res).catch(next);
+})
+
+router.delete('/category', validateBody(deleteCategoryValidation, RouteSource?.Query), (req, res, next) => {
+	deleteCategory(req, res).catch(next);
 })
 
 export default router;
