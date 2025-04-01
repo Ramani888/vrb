@@ -12,6 +12,8 @@ import { addAdsPoster, deleteAdsPoster, getAllAdsPoster, updateAdsPoster } from 
 import { deleteAdsPosterValidation, updateAdsPosterValidation } from "../utils/validates/adsPoster.validate";
 import { addCategory, deleteCategory, getAllCategory, getCategoryById, updateCategory } from "../controllers/category.controller";
 import { addCategoryValidation, deleteCategoryValidation, getCategoryByIdValidation, updateCategoryValidation } from "../utils/validates/category.validate";
+import { addWishlistValidation, getWishlistValidation, removeWishlistValidation } from "../utils/validates/wishlist.validate";
+import { addWishlist, getWishlist, removeWishlist } from "../controllers/wishlist.controller";
 dotenv.config();
 
 enum RouteSource {
@@ -137,5 +139,18 @@ router.get('/category/alone', validateBody(getCategoryByIdValidation, RouteSourc
 router.delete('/category', validateBody(deleteCategoryValidation, RouteSource?.Query), (req, res, next) => {
 	deleteCategory(req, res).catch(next);
 })
+
+// Wishlist
+router.post('/wishlist', validateBody(addWishlistValidation), (req, res, next) => {
+	addWishlist(req, res).catch(next);
+})
+
+router.delete('/wishlist', validateBody(removeWishlistValidation, RouteSource?.Query), (req, res, next) => {
+	removeWishlist(req, res).catch(next);	
+});
+
+router.get('/wishlist', validateBody(getWishlistValidation, RouteSource?.Query), (req, res, next) => {
+	getWishlist(req, res).catch(next);
+});
 
 export default router;
