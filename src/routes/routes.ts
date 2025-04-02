@@ -21,6 +21,7 @@ import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProdu
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
 import { addDeliveryAddress, addTracking, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
 import { addTrackingDetailsValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
+import { getDashboard } from "../controllers/dashboard.controller";
 dotenv.config();
 
 enum RouteSource {
@@ -276,6 +277,12 @@ router.post('/tracking', validateBody(addTrackingDetailsValidation), (req, res, 
 
 router.put('/tracking', validateBody(updateTrackingDetailsValidation), (req, res, next) => {
 	updateTracking(req, res).catch(next);
+});
+
+
+// Dashboard
+router.get('/dashboard', (req, res, next) => {
+	getDashboard(req, res).catch(next);
 });
 
 export default router;
