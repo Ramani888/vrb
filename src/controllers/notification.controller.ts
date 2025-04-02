@@ -2,7 +2,7 @@ import { AuthorizedRequest } from "../types/user";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import { deleteDeviceTokenData } from "../services/user.service";
-import firebaseAdmin from '../config/firebase.config';
+import firebaseAdmin from '../config/aws.config';
 
 export const sendBulkPushNotification = async (tokenData: any[], bodyData: any) => {
     tokenData.forEach(async (token: string) => {

@@ -19,7 +19,8 @@ import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../c
 import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
 import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductByCategoryId, getProductById, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
-import { addDeliveryAddress, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress } from "../controllers/order.controller";
+import { addDeliveryAddress, addTracking, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
+import { addTrackingDetailsValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
 dotenv.config();
 
 enum RouteSource {
@@ -266,5 +267,15 @@ router.put('/delivery/address', validateBody(updateDeliveryAddressValidation), (
 router.get('/delivery/address', validateBody(getDeliveryAddressValidation, RouteSource?.Query), (req, res, next) => {
 	getDeliveryAddress(req, res).catch(next);
 })
+
+
+// Tracking Order
+router.post('/tracking', validateBody(addTrackingDetailsValidation), (req, res, next) => {
+	addTracking(req, res).catch(next);
+});
+
+router.put('/tracking', validateBody(updateTrackingDetailsValidation), (req, res, next) => {
+	updateTracking(req, res).catch(next);
+});
 
 export default router;

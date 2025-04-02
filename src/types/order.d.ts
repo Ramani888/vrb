@@ -12,3 +12,13 @@ export interface IDeliveryAddress {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface ITrackingDetails {
+    _id?: ObjectId;
+    orderId?: string;
+    trackingId?: string;
+    packingId?: string;
+    video?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
