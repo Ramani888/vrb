@@ -1,5 +1,7 @@
 import { S3Client, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
+import { IUsers } from "../../types/user";
+import { IProduct } from "../../types/product";
 dotenv.config();
 const s3 = new S3Client({ region: process.env.AWS_REGION });
 
@@ -58,4 +60,32 @@ export const deleteImageS3 = async (imagePath: string) => {
   } catch (err) {
       console.error("Error:", err);
   }
+}
+
+export const isEqualIgnoreCase = (str1: string, str2: string) => {
+    return str1.toLowerCase() === str2.toLowerCase();
+}
+
+export const checkUserLocationAndGetDeliveryCharge = (userData: IUsers, productData: IProduct) => {
+    if (userData?.state && userData?.city) {
+        if (isEqualIgnoreCase(userData?.state, 'Gujarat') && isEqualIgnoreCase(userData?.city, 'surat')){
+            return productData?.inSuratCityCharge
+        } else if (isEqualIgnoreCase(userData?.state, 'Gujarat') && !isEqualIgnoreCase(userData?.city, 'surat')) {
+            return productData?.inGujratStateCharge
+        } else if (!isEqualIgnoreCase(userData?.state, 'Gujarat')) {
+            return productData?.inOutStateCharge
+        }
+    }
+}
+
+export const checkUserGujratState = (userData: IUsers, productData: IProduct) => {
+    if (userData?.state && userData?.city) {
+        if (isEqualIgnoreCase(userData?.state, 'Gujarat') && isEqualIgnoreCase(userData?.city, 'surat')){
+            return true
+        } else if (isEqualIgnoreCase(userData?.state, 'Gujarat') && !isEqualIgnoreCase(userData?.city, 'surat')) {
+            return true
+        } else if (!isEqualIgnoreCase(userData?.state, 'Gujarat')) {
+            return false
+        }
+    }
 }

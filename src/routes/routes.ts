@@ -14,6 +14,12 @@ import { addCategory, deleteCategory, getAllCategory, getCategoryById, updateCat
 import { addCategoryValidation, deleteCategoryValidation, getCategoryByIdValidation, updateCategoryValidation } from "../utils/validates/category.validate";
 import { addWishlistValidation, getWishlistValidation, removeWishlistValidation } from "../utils/validates/wishlist.validate";
 import { addWishlist, getWishlist, removeWishlist } from "../controllers/wishlist.controller";
+import { addToCartValidation, getCartCountValidation, getCartValidation, removeCartValidation, updateCartValidation } from "../utils/validates/cart.validate";
+import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../controllers/cart.controller";
+import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
+import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductByCategoryId, getProductById, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
+import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
+import { addDeliveryAddress, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress } from "../controllers/order.controller";
 dotenv.config();
 
 enum RouteSource {
@@ -46,6 +52,7 @@ const upload = multer({
 	}),
 });
 
+
 // Auth
 router.post('/registerUser', validateBody(registerValidation), (req, res, next) => {
 	insertRegisterUser(req, res).catch(next);
@@ -59,10 +66,12 @@ router.post('/register/login', validateBody(loginValidation), (req, res, next) =
 	userRegisterLogin(req, res).catch(next);
 });
 
+
 // Admin Login
 router.post('/admin/login', validateBody(adminLoginValidation), (req, res, next) => {
 	adminLogin(req, res).catch(next);
 });
+
 
 // User
 router.put('/user', validateBody(updateUserValidation), (req, res, next) => {
@@ -85,6 +94,7 @@ router.put('/user/status', validateBody(updateUserStatusValidation), (req, res, 
 	updateUserStatus(req, res).catch(next);
 })
 
+
 // Banner
 router.post('/banner', upload.single('image'), validateBody(addBannerValidation),  (req, res, next) => {
 	addBanner(req, res).catch(next);
@@ -101,6 +111,7 @@ router.get('/banner', (req, res, next) => {
 router.delete('/banner', validateBody(deleteBannerValidation, RouteSource?.Query), (req, res, next) => {
 	deleteBanner(req, res).catch(next);
 })
+
 
 // Ads Poster
 router.post('/ads/poster', upload.single('image'), (req, res, next) => {
@@ -140,6 +151,69 @@ router.delete('/category', validateBody(deleteCategoryValidation, RouteSource?.Q
 	deleteCategory(req, res).catch(next);
 })
 
+
+// Product
+router.post('/product', validateBody(addProductValidation), (req, res, next) => {
+	addProduct(req, res).catch(next);
+});
+
+router.put('/product', validateBody(updateProductValidation), (req, res, next) => {
+	updateProduct(req, res).catch(next);
+});
+
+router.get('/product', validateBody(getAllProductValidation, RouteSource?.Query), (req, res, next) => {
+	getAllProduct(req, res).catch(next);
+})
+
+router.get('/category/product', validateBody(getProductByCategoryIdValidation, RouteSource?.Query), (req, res, next) => {
+	getProductByCategoryId(req, res).catch(next);
+})
+
+router.get('/product/alone', validateBody(getProductByIdValidation, RouteSource?.Query), (req, res, next) => {
+	getProductById(req, res).catch(next);
+})
+
+router.delete('/product', validateBody(deleteProductValidation, RouteSource?.Query), (req, res, next) => {
+	deleteProduct(req, res).catch(next);
+})
+
+router.put('/product/pramotion/flag', validateBody(updateProductPramotionFlagValidation), (req, res, next) => {
+	updateProductPramotionFlag(req, res).catch(next);
+})
+
+router.put('/product/discount', validateBody(updateProductDiscountValidation), (req, res, next) => {
+	updateProductDiscount(req, res).catch(next);
+})
+
+router.put('/product/reward', validateBody(updateProductRewardValidation), (req, res, next) => {
+	updateProductReward(req, res).catch(next);
+})
+
+router.get('/product/pramotion', validateBody(getPramotionProductValidation, RouteSource?.Query), (req, res, next) => {
+	getPramotionProduct(req, res).catch(next);
+})
+
+router.get('/product/under/two', validateBody(getPramotionProductValidation, RouteSource?.Query), (req, res, next) => {
+	getProductUnderTwo(req, res).catch(next);
+})
+
+router.get('/product/under/three', validateBody(getPramotionProductValidation, RouteSource?.Query), (req, res, next) => {
+	getProductUnderThree(req, res).catch(next);
+})
+
+router.get('/product/under/five', validateBody(getPramotionProductValidation, RouteSource?.Query), (req, res, next) => {
+	getProductUnderFive(req, res).catch(next);
+})
+
+router.get('/product/under/ten', validateBody(getPramotionProductValidation, RouteSource?.Query), (req, res, next) => {
+	getProductUnderten(req, res).catch(next);
+})
+
+router.put('/product/action', validateBody(updateProductActionValidation, RouteSource?.Query), (req, res, next) => {
+	updateProductAction(req, res).catch(next);
+})
+
+
 // Wishlist
 router.post('/wishlist', validateBody(addWishlistValidation), (req, res, next) => {
 	addWishlist(req, res).catch(next);
@@ -152,5 +226,45 @@ router.delete('/wishlist', validateBody(removeWishlistValidation, RouteSource?.Q
 router.get('/wishlist', validateBody(getWishlistValidation, RouteSource?.Query), (req, res, next) => {
 	getWishlist(req, res).catch(next);
 });
+
+
+// Cart
+router.post('/cart', validateBody(addToCartValidation), (req, res, next) => {
+	addToCart(req, res).catch(next);
+})
+
+router.delete('/cart', validateBody(removeCartValidation, RouteSource?.Query), (req, res, next) => {
+	removeToCart(req, res).catch(next);
+});
+
+router.get('/cart', validateBody(getCartValidation, RouteSource?.Query), (req, res, next) => {
+	getCart(req, res).catch(next);
+})
+
+router.put('/cart', validateBody(updateCartValidation), (req, res, next) => {
+	updateCart(req, res).catch(next);
+})
+
+router.get('/cart/count', validateBody(getCartCountValidation, RouteSource?.Query), (req, res, next) => {
+	getCartCount(req, res).catch(next);
+})
+
+
+// Delivery Address
+router.post('/delivery/address', validateBody(addDeliveryAddressValidation), (req, res, next) => {
+	addDeliveryAddress(req, res).catch(next);
+})
+
+router.delete('/delivery/address', validateBody(deleteDeliveryAddressValidation, RouteSource?.Query), (req, res, next) => {
+	deleteDeliveryAddress(req, res).catch(next);
+})
+
+router.put('/delivery/address', validateBody(updateDeliveryAddressValidation), (req, res, next) => {
+	updateDeliveryAddress(req, res).catch(next);
+})
+
+router.get('/delivery/address', validateBody(getDeliveryAddressValidation, RouteSource?.Query), (req, res, next) => {
+	getDeliveryAddress(req, res).catch(next);
+})
 
 export default router;

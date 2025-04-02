@@ -99,3 +99,12 @@ export const updateUserDataStatus = async (bodyData: IUsers) => {
         throw e;
     }
 }
+
+export const deleteDeviceTokenData = async (token: string) => {
+    try {
+        await DeviceToken.deleteOne({ token: token });
+        return;
+    } catch (err) {
+        throw err;
+    }
+}
