@@ -3,6 +3,14 @@ import { ProductDetails } from "../models/productDetails.model";
 import mongoose from "mongoose";
 import _ from "lodash";
 import { IProduct } from "../types/product";
+import { ProductBaseMetal } from "../models/productBaseMetal.model";
+import { ProductBrand } from "../models/productBrand.model";
+import { ProductColor } from "../models/productColor.model";
+import { ProductOccasion } from "../models/productOccasion.model";
+import { ProductPlating } from "../models/productPlating.model";
+import { ProductStoneType } from "../models/productStoneType.model";
+import { ProductTrend } from "../models/productTrend.model";
+import { ProductType } from "../models/productType.model";
 
 export const updateProductWishlistFlag = async (productId: string, userId: string, isWishlist: boolean) => {
     try {
@@ -480,6 +488,78 @@ export const updateProductActionData = async (productId: string) => {
             { upsert: true }
         )
         return;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductBaseMetalData = async () => {
+    try {
+        const result = await ProductBaseMetal.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductBrandData = async () => {
+    try {
+        const result = await ProductBrand.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductColorData = async () => {
+    try {
+        const result = await ProductColor.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductOccasionData = async () => {
+    try {
+        const result = await ProductOccasion.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductPlatingData = async () => {
+    try {
+        const result = await ProductPlating.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductStoneTypeData = async () => {
+    try {
+        const result = await ProductStoneType.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductTrendData = async () => {
+    try {
+        const result = await ProductTrend.find();
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const getProductTypeData = async () => {
+    try {
+        const result = await ProductType.find();
+        return result;
     } catch (err) {
         throw err;
     }

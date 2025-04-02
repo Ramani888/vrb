@@ -17,7 +17,7 @@ import { addWishlist, getWishlist, removeWishlist } from "../controllers/wishlis
 import { addToCartValidation, getCartCountValidation, getCartValidation, removeCartValidation, updateCartValidation } from "../utils/validates/cart.validate";
 import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../controllers/cart.controller";
 import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
-import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductByCategoryId, getProductById, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
+import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductBaseMetal, getProductBrand, getProductByCategoryId, getProductById, getProductColor, getProductOccasion, getProductPlating, getProductStoneType, getProductTrend, getProductType, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
 import { addDeliveryAddress, addTracking, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
 import { addTrackingDetailsValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
@@ -285,4 +285,37 @@ router.get('/dashboard', (req, res, next) => {
 	getDashboard(req, res).catch(next);
 });
 
+
+// Product Insert Document Get Api
+router.get('/product/baseMetal', (req, res, next) => {
+	getProductBaseMetal(req, res).catch(next);
+})
+
+router.get('/product/brand', (req, res, next) => {
+	getProductBrand(req, res).catch(next);
+})
+
+router.get('/product/color', (req, res, next) => {
+	getProductColor(req, res).catch(next);
+})
+
+router.get('/product/occasion', (req, res, next) => {
+	getProductOccasion(req, res).catch(next);
+})
+
+router.get('/product/plating', (req, res, next) => {
+	getProductPlating(req, res).catch(next);
+})
+
+router.get('/product/stoneType', (req, res, next) => {
+	getProductStoneType(req, res).catch(next);
+})
+
+router.get('/product/trend', (req, res, next) => {
+	getProductTrend(req, res).catch(next);
+})
+
+router.get('/product/type', (req, res, next) => {
+	getProductType(req, res).catch(next);
+})
 export default router;

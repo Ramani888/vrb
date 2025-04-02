@@ -1,7 +1,7 @@
 import { AuthorizedRequest } from "../types/user";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { addProductData, deleteProductData, deleteProductDetailsData, getAllProductData, getPramotionProductData, getProductDataByCategoryId, getProductDataById, getProductDetailsByUserId, getProductUnderFiveData, getProductUnderTenData, getProductUnderThreeData, getProductUnderTwoData, updateProductActionData, updateProductData, updateProductDiscountData, updateProductPramotionFlagData, updateProductRewardData } from "../services/product.service";
+import { addProductData, deleteProductData, deleteProductDetailsData, getAllProductData, getPramotionProductData, getProductBaseMetalData, getProductBrandData, getProductColorData, getProductDataByCategoryId, getProductDataById, getProductDetailsByUserId, getProductOccasionData, getProductPlatingData, getProductStoneTypeData, getProductTrendData, getProductTypeData, getProductUnderFiveData, getProductUnderTenData, getProductUnderThreeData, getProductUnderTwoData, updateProductActionData, updateProductData, updateProductDiscountData, updateProductPramotionFlagData, updateProductRewardData } from "../services/product.service";
 import { getCategoryDataById } from "../services/category.service";
 import { DeviceToken } from "../models/deviceToken.model";
 import { insertNotificationData } from "../services/notification.service";
@@ -550,6 +550,86 @@ export const updateProductAction = async (req: AuthorizedRequest, res: Response)
     try {
         await updateProductActionData(productId);
         res.status(StatusCodes.OK).send({ success: true });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductBaseMetal = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductBaseMetalData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductBrand = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductBrandData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductColor = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductColorData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductOccasion = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductOccasionData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductPlating = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductPlatingData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductStoneType = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductStoneTypeData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductTrend = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductTrendData();
+        res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getProductType = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getProductTypeData();
+        res.status(StatusCodes.OK).send({ data });
     } catch (err) {
         console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
