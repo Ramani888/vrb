@@ -35,3 +35,19 @@ export const insertDeviceTokenValidation = {
 export const addUnloadingDetailsValidation = {
     orderId: 'required|string'
 };
+
+export const addOrderValidation = {
+    paymentId: 'required|string',
+    userId: 'required|string',
+    totalAmount: 'required|numeric',
+    product: 'required|array'
+}
+
+export const getOrderByUserValidation = {
+    userId: 'required|string'
+}
+
+export const updateOrderStatusValidation = {
+    orderId: 'required|string',
+    status: 'required|string'
+}

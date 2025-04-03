@@ -19,8 +19,8 @@ import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../c
 import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, getSearchProductValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
 import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductBaseMetal, getProductBrand, getProductByCategoryId, getProductById, getProductColor, getProductOccasion, getProductPlating, getProductStoneType, getProductTrend, getProductType, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, getSearchProduct, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
-import { addDeliveryAddress, addTracking, capturePayment, deleteDeliveryAddress, getDeliveryAddress, getPayment, insertUnloading, insertUnloadingImage, insertUnloadingVideo, refundPayment, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
-import { addTrackingDetailsValidation, addUnloadingDetailsValidation, getNotificationCountValidation, getNotificationValidation, insertDeviceTokenValidation, sendPushNotificationValidation, updateNotificationStatusValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
+import { addDeliveryAddress, addOrder, addTracking, capturePayment, deleteDeliveryAddress, getDeliveryAddress, getOrder, getOrderByUser, getPayment, insertUnloading, insertUnloadingImage, insertUnloadingVideo, refundPayment, updateDeliveryAddress, updateOrderStatus, updateTracking } from "../controllers/order.controller";
+import { addOrderValidation, addTrackingDetailsValidation, addUnloadingDetailsValidation, getNotificationCountValidation, getNotificationValidation, getOrderByUserValidation, insertDeviceTokenValidation, sendPushNotificationValidation, updateNotificationStatusValidation, updateOrderStatusValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
 import { getDashboard } from "../controllers/dashboard.controller";
 import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
 import { getReward } from "../controllers/reward.controller";
@@ -282,6 +282,24 @@ router.put('/delivery/address', validateBody(updateDeliveryAddressValidation), (
 
 router.get('/delivery/address', validateBody(getDeliveryAddressValidation, RouteSource?.Query), (req, res, next) => {
 	getDeliveryAddress(req, res).catch(next);
+})
+
+
+// Product Order
+router.post('', validateBody(addOrderValidation), (req, res, next) => {
+	addOrder(req, res).catch(next);
+})
+
+router.get('/order', (req, res, next) => {
+	getOrder(req, res).catch(next);
+})
+
+router.get('/user/order', validateBody(getOrderByUserValidation, RouteSource?.Query), (req, res, next) => {
+	getOrderByUser(req, res).catch(next);
+})
+
+router.put('/order/status', validateBody(updateOrderStatusValidation, RouteSource?.Query), (req, res, next) => {
+	updateOrderStatus(req, res).catch(next);
 })
 
 

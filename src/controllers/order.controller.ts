@@ -1,7 +1,7 @@
 import { AuthorizedRequest } from "../types/user";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { addDeliveryAddressData, addTrackingData, deleteDeliveryAddressData, getDeliveryAddressByUserId, insertUnloadingData, updateDeliveryAddressData, updateOrderStatusData, updateTrackingDetail } from "../services/order.service";
+import { addDeliveryAddressData, addOrderData, addOrderDetailsData, addTrackingData, deleteDeliveryAddressData, getDeliveryAddressByUserId, getOrderData, getOrderDataByUser, getOrderDetailsData, getOrderDetailsDataByUser, getTrackingData, getUnloadingData, insertUnloadingData, updateDeliveryAddressData, updateOrderStatusData, updateTrackingDetail } from "../services/order.service";
 import { deleteObject, getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import dotenv from "dotenv"
 import { initializeApp } from "firebase/app";
@@ -9,6 +9,9 @@ import config from "../config/firbase.config";
 import { RAZOR_PAY_KEY_ID, RAZOR_PAY_KEY_SECRET } from "../utils/helpers/global";
 import axios from 'axios';
 import Razorpay from 'razorpay';
+import { addRewardData } from "../services/reward.service";
+import { removeToCartData } from "../services/cart.service";
+import { updateProductCartFlag } from "../services/product.service";
 dotenv.config();
 
 const firebaseApp = initializeApp(config.firebaseConfig);
@@ -230,6 +233,133 @@ export const getPayment = async (req: AuthorizedRequest, res: Response) => {
 
     } catch (err) {
         console.error(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const addOrder = async (req: AuthorizedRequest, res: Response) => {
+    const bodyData = req.body;
+
+    try {
+        const deliveryAddressData = await getDeliveryAddressByUserId(bodyData?.userId);
+        const orderId = await addOrderData({...bodyData, deliveryAddressId: deliveryAddressData[0]?._id?.toString()});
+
+        await addOrderDetailsData({...bodyData, orderId: orderId});
+
+        const totalReward = bodyData?.product?.reduce((accumulator: any, item: any) => {
+            return accumulator + item?.reward;
+        }, 0);
+
+        const rewardData = {
+            userId: bodyData?.userId,
+            orderId: orderId?.toString(),
+            reward: totalReward,
+            isEarned: true
+        }
+
+        await addRewardData(rewardData)
+
+        if (bodyData?.isWallet) {
+            const totalRedeemReward = bodyData?.wallet;
+
+            const rewardData = {
+                userId: bodyData?.userId,
+                orderId: orderId?.toString(),
+                reward: totalRedeemReward,
+                isRedeemed: true
+            }
+    
+            await addRewardData(rewardData)
+        }
+
+        bodyData?.product?.map(async (item: any) => {
+            await removeToCartData(item?.id, bodyData?.userId);
+            await updateProductCartFlag(item?.id, bodyData?.userId, false);
+        })
+        return res.status(StatusCodes.OK).send({ success: true, message: "Order completed successfully." });
+    } catch (e) {
+        console.log(e);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ e });
+    }
+}
+
+export const getOrder = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const orderData = await getOrderData(); // Assuming getOrderData() retrieves order data
+        const orderDetailsData = await getOrderDetailsData(); // Assuming getOrderDetailsData() retrieves order details data
+        const trackingData = await getTrackingData();
+        const unloadingData = await getUnloadingData();
+
+        // Map through order data and find associated product details
+        const data = orderData?.map((order: any) => {
+            const findProductDetails = orderDetailsData?.filter((detailsData) =>
+                String(detailsData.orderId) === String(order._id)
+            );
+            const findTrackingDetails = trackingData?.find((detailsData) =>
+                String(detailsData.orderId) === String(order._id)
+            );
+            const findUnloadingData = unloadingData?.find((detailsData) => 
+                String(detailsData.orderId) === String(order._id)
+            )
+            return {
+                ...order,
+                productDetails: findProductDetails,
+                trackingDetails: findTrackingDetails,
+                unloadingDetails: findUnloadingData
+            };
+        });
+
+        return res.status(StatusCodes.OK).send({ data });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error });
+    }
+};
+
+export const getOrderByUser = async (req: AuthorizedRequest, res: Response) => {
+    const { userId } = req.query;
+
+    try {
+        const orderData = await getOrderDataByUser(userId); // Assuming getOrderData() retrieves order data
+        const orderDetailsData = await getOrderDetailsDataByUser(userId); // Assuming getOrderDetailsData() retrieves order details data
+        const trackingData = await getTrackingData();
+        const unloadingData = await getUnloadingData();
+
+        // Map through order data and find associated product details
+        const data = orderData?.map((order: any) => {
+            const findProductDetails = orderDetailsData?.filter((detailsData) =>
+                String(detailsData.orderId) === String(order._id)
+            );
+            const findTrackingDetails = trackingData?.find((detailsData) =>
+                String(detailsData.orderId) === String(order._id)
+            );
+            const findUnloadingData = unloadingData?.find((detailsData) => 
+                String(detailsData.orderId) === String(order._id)
+            )
+            return {
+                ...order,
+                productDetails: findProductDetails,
+                trackingDetails: findTrackingDetails,
+                unloadingDetails: findUnloadingData
+            };
+        });
+
+        return res.status(StatusCodes.OK).send({ data });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ error });
+    }
+
+}
+
+export const updateOrderStatus = async (req: AuthorizedRequest, res: Response) => {
+    const { orderId, status } = req.query;
+
+    try {
+        await updateOrderStatusData(orderId, status);
+        res.status(StatusCodes.OK).send({ success: true, message: "Order status updated." });
+    } catch (err) {
+        console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
     }
 }

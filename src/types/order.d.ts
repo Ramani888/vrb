@@ -31,3 +31,32 @@ export interface IUnloadingDetails {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface IOrder {
+    _id?: ObjectId;
+    userId?: string;
+    totalAmount?: number;
+    deliveryAddressId?: string;
+    paymentId?: string;
+}
+
+export interface IOrderDetails {
+    _id?: ObjectId;
+    productId?: string;
+    userId?: string;
+    orderId?: string;
+    product?: any[];
+    qty?: number;
+    totalPrice?: number;
+}
+
+export interface IReward {
+    _id?: ObjectId;
+    userId?: string;
+    orderId?: string;
+    reward?: number;
+    isEarned?: boolean;
+    isRedeemed?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
