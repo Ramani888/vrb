@@ -1,7 +1,7 @@
 import { AuthorizedRequest } from "../types/user";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
-import { addProductData, deleteProductData, deleteProductDetailsData, getAllProductData, getPramotionProductData, getProductBaseMetalData, getProductBrandData, getProductColorData, getProductDataByCategoryId, getProductDataById, getProductDetailsByUserId, getProductOccasionData, getProductPlatingData, getProductStoneTypeData, getProductTrendData, getProductTypeData, getProductUnderFiveData, getProductUnderTenData, getProductUnderThreeData, getProductUnderTwoData, updateProductActionData, updateProductData, updateProductDiscountData, updateProductPramotionFlagData, updateProductRewardData } from "../services/product.service";
+import { addProductData, deleteProductData, deleteProductDetailsData, getAllProductData, getPramotionProductData, getProductBaseMetalData, getProductBrandData, getProductColorData, getProductDataByCategoryId, getProductDataById, getProductDetailsByUserId, getProductOccasionData, getProductPlatingData, getProductStoneTypeData, getProductTrendData, getProductTypeData, getProductUnderFiveData, getProductUnderTenData, getProductUnderThreeData, getProductUnderTwoData, getSearchProductData, updateProductActionData, updateProductData, updateProductDiscountData, updateProductPramotionFlagData, updateProductRewardData } from "../services/product.service";
 import { getCategoryDataById } from "../services/category.service";
 import { DeviceToken } from "../models/deviceToken.model";
 import { insertNotificationData } from "../services/notification.service";
@@ -630,6 +630,52 @@ export const getProductType = async (req: AuthorizedRequest, res: Response) => {
     try {
         const data = await getProductTypeData();
         res.status(StatusCodes.OK).send({ data });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getSearchProduct = async (req: AuthorizedRequest, res: Response) => {
+    const { userId, search } = req.query;
+
+    try {
+        const result = await getSearchProductData(search);
+
+        if (!userId) {
+            const data = result?.map((item: any) => {
+                return {
+                    ...item?._doc,
+                    isWishlist: false,
+                    isCart: false,
+                    deliveryCharge: 0
+                }
+            })
+            return res.status(StatusCodes.OK).send({ data });
+        }
+
+        const userData = await getUserDataById(userId);
+
+        if (!userData) {
+            res.status(StatusCodes.BAD_REQUEST).send({ error: 'user data not found.' });
+            return;
+        }
+
+        const finalResult = result?.map(async (item: any) => {
+
+            const productDetails = await getProductDetailsByUserId(item?._id?.toString(), userId);
+            return {
+                ...item?._doc,
+                isWishlist: productDetails[0]?.isWishlist ? true : false,
+                isCart: productDetails[0]?.isCart ? true : false,
+                deliveryCharge: checkUserLocationAndGetDeliveryCharge(userData, item) ?? 0
+            }
+        })
+
+        const data = await Promise.all(finalResult);
+
+        res.status(StatusCodes.OK).send({ data });
+
     } catch (err) {
         console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });

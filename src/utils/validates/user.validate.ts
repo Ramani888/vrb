@@ -33,3 +33,16 @@ export const updateUserStatusValidation = {
     _id: 'required|string',
     isActive: 'required|boolean'
 }
+
+export const getRewardDataValidation = {
+    userId: 'required|string'
+}
+
+export const addCapturePaymentValidation = {
+    paymentId: 'required|string',
+    payment: 'required|numeric'
+}
+
+export const getPaymentValidation = {
+    paymentId: 'required|string'
+}

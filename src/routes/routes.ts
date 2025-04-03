@@ -1,6 +1,6 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyValidate.middleware";
-import { adminLoginValidation, deleteUserValidation, getUserByIdValidation, loginValidation, registerValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
+import { addCapturePaymentValidation, adminLoginValidation, deleteUserValidation, getPaymentValidation, getRewardDataValidation, getUserByIdValidation, loginValidation, registerValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
 import { adminLogin, deleteUser, getAllUser, getUserById, insertRegisterUser, updateUser, updateUserStatus, userLogin, userRegisterLogin } from "../controllers/user.controller";
 import multerS3 from "multer-s3";
 import multer from "multer";
@@ -16,12 +16,14 @@ import { addWishlistValidation, getWishlistValidation, removeWishlistValidation 
 import { addWishlist, getWishlist, removeWishlist } from "../controllers/wishlist.controller";
 import { addToCartValidation, getCartCountValidation, getCartValidation, removeCartValidation, updateCartValidation } from "../utils/validates/cart.validate";
 import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../controllers/cart.controller";
-import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
-import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductBaseMetal, getProductBrand, getProductByCategoryId, getProductById, getProductColor, getProductOccasion, getProductPlating, getProductStoneType, getProductTrend, getProductType, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
+import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, getSearchProductValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
+import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductBaseMetal, getProductBrand, getProductByCategoryId, getProductById, getProductColor, getProductOccasion, getProductPlating, getProductStoneType, getProductTrend, getProductType, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, getSearchProduct, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
-import { addDeliveryAddress, addTracking, deleteDeliveryAddress, getDeliveryAddress, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
-import { addTrackingDetailsValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
+import { addDeliveryAddress, addTracking, capturePayment, deleteDeliveryAddress, getDeliveryAddress, getPayment, insertUnloading, insertUnloadingImage, insertUnloadingVideo, refundPayment, updateDeliveryAddress, updateTracking } from "../controllers/order.controller";
+import { addTrackingDetailsValidation, addUnloadingDetailsValidation, getNotificationCountValidation, getNotificationValidation, insertDeviceTokenValidation, sendPushNotificationValidation, updateNotificationStatusValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
 import { getDashboard } from "../controllers/dashboard.controller";
+import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
+import { getReward } from "../controllers/reward.controller";
 dotenv.config();
 
 enum RouteSource {
@@ -50,6 +52,19 @@ const upload = multer({
 	  key: (req, file, cb) => {
 		const filename = `${Date.now()}_${file.originalname}`;
 		cb(null, `uploads/${filename}`); // 🔹 Uploads to 'uploads/' folder
+	  },
+	}),
+});
+
+const uploadVideo = multer({
+	storage: multerS3({
+	  s3: s3,
+	  bucket: process.env.AWS_BUCKET_NAME!,
+	  acl: "public-read", // 🔹 Makes the image public
+	  contentType: multerS3.AUTO_CONTENT_TYPE,
+	  key: (req, file, cb) => {
+		const filename = `${Date.now()}_${file.originalname}`;
+		cb(null, `videos/${filename}`); // 🔹 Uploads to 'uploads/' folder
 	  },
 	}),
 });
@@ -317,5 +332,69 @@ router.get('/product/trend', (req, res, next) => {
 
 router.get('/product/type', (req, res, next) => {
 	getProductType(req, res).catch(next);
+})
+
+
+// Sending Push Notification
+router.post('/push/notification', validateBody(sendPushNotificationValidation), (req, res, next) => {
+	pushNotification(req, res).catch(next);
+})
+
+
+// Get Notification Data
+router.get('/notification', validateBody(getNotificationValidation, RouteSource?.Query), (req, res, next) => {
+	getNotification(req, res).catch(next);
+})
+
+router.get('/notification/count', validateBody(getNotificationCountValidation, RouteSource?.Query), (req, res, next) => {
+	getNotificationCount(req, res).catch(next);
+})
+
+router.put('', validateBody(updateNotificationStatusValidation, RouteSource?.Query), (req, res, next) => {
+	updateNotificationStatus(req, res).catch(next);
+})
+
+router.put('/notification/device/token', validateBody(insertDeviceTokenValidation), (req, res, next) => {
+	insertDeviceToken(req, res).catch(next);
+})
+
+
+// Unloading
+router.post('/unloading/upload/image', upload.single('image'), (req, res, next) => {
+	insertUnloadingImage(req, res).catch(next);
+})
+
+router.post('/unloading/upload/video', uploadVideo.single('video'), (req, res, next) => {
+	insertUnloadingVideo(req, res).catch(next);
+})
+
+router.post('/unloading', validateBody(addUnloadingDetailsValidation), (req, res, next) => {
+	insertUnloading(req, res).catch(next);
+})
+
+
+// Search Api
+router.get('/search/product', validateBody(getSearchProductValidation, RouteSource?.Query), (req, res, next) => {
+	getSearchProduct(req, res).catch(next);
+})
+
+
+// Reward Api
+router.get('/reward', validateBody(getRewardDataValidation, RouteSource?.Query), (req, res, next) => {
+	getReward(req, res).catch(next);
+})
+
+
+// Payment And Refund
+router.post('/capture/payment', validateBody(addCapturePaymentValidation), (req, res, next) => {
+	capturePayment(req, res).catch(next);
+})
+
+router.post('/refund/payment', validateBody(addCapturePaymentValidation), (req, res, next) => {
+	refundPayment(req, res).catch(next);
+})
+
+router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (req, res, next) => {
+	getPayment(req, res).catch(next);
 })
 export default router;

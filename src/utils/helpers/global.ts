@@ -89,3 +89,6 @@ export const checkUserGujratState = (userData: IUsers, productData: IProduct) =>
         }
     }
 }
+
+export const RAZOR_PAY_KEY_ID = 'rzp_live_g5FHxyE0FQivlu';
+export const RAZOR_PAY_KEY_SECRET = 'C14bmIZD7SMjU4cZ0GjrID7g';

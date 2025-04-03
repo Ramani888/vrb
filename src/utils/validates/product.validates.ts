@@ -61,3 +61,8 @@ export const updateProductRewardValidation = {
     _id: 'required|string',
     reward: 'required|numeric'
 }
+
+export const getSearchProductValidation = {
+    userId: 'required|string',
+    search: 'required|string'
+}

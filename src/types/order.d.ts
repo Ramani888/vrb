@@ -22,3 +22,12 @@ export interface ITrackingDetails {
     createdAt?: Date;
     updatedAt?: Date;
 }
+
+export interface IUnloadingDetails {
+    _id?: ObjectId;
+    orderId?: string;
+    imageUrl?: string;
+    videoUrl?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}

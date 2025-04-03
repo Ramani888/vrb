@@ -1,8 +1,9 @@
 import { DeliveryAddress } from "../models/deliveryAddress.model";
 import mongoose from "mongoose";
-import { IDeliveryAddress, ITrackingDetails } from "../types/order";
+import { IDeliveryAddress, ITrackingDetails, IUnloadingDetails } from "../types/order";
 import { TrackingDetails } from "../models/trackingDetails.model";
 import { Order } from "../models/order.model";
+import { UnloadingDetails } from "../models/unloadingDetails.model";
 
 export const getDeliveryAddressByUserId = async (userId: string) => {
     try {
@@ -79,6 +80,15 @@ export const updateTrackingDetail = async (bodyData: ITrackingDetails) => {
             runValidators: true
         });
         return result;
+    } catch (e) {
+        throw e;
+    }
+}
+
+export const insertUnloadingData = async (data: IUnloadingDetails) => {
+    try {
+        const newData = new UnloadingDetails(data);
+        await newData.save();
     } catch (e) {
         throw e;
     }

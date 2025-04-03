@@ -564,3 +564,12 @@ export const getProductTypeData = async () => {
         throw err;
     }
 }
+
+export const getSearchProductData = async (productName: string) => {
+    try {
+        const products = await Product.find({ name: new RegExp(productName, 'i') });
+        return products;
+    } catch (err) {
+        throw err;
+    }
+};
