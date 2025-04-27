@@ -1,6 +1,6 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyValidate.middleware";
-import { addCapturePaymentValidation, adminLoginValidation, deleteUserValidation, getPaymentValidation, getRewardDataValidation, getUserByIdValidation, loginValidation, registerValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
+import { addCapturePaymentValidation, adminLoginValidation, deleteUserValidation, getPaymentValidation, getRewardDataValidation, getUserByIdValidation, loginValidation, registerLoginValidation, registerValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
 import { adminLogin, deleteUser, getAllUser, getUserById, insertRegisterUser, updateUser, updateUserStatus, userLogin, userRegisterLogin } from "../controllers/user.controller";
 import multerS3 from "multer-s3";
 import multer from "multer";
@@ -79,7 +79,7 @@ router.post('/login', validateBody(loginValidation), (req, res, next) => {
 	userLogin(req, res).catch(next);
 })
 
-router.post('/register/login', validateBody(loginValidation), (req, res, next) => {
+router.post('/register/login', validateBody(registerLoginValidation), (req, res, next) => {
 	userRegisterLogin(req, res).catch(next);
 });
 

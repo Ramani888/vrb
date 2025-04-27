@@ -7,6 +7,14 @@ export const registerValidation = {
     password: 'required|string',
 };
 
+export const registerLoginValidation = {
+    mobileNumber: 'required|numeric',
+    country: 'required|string',
+    state: 'required|string',
+    city: 'required|string',
+    pinCode: 'required|numeric'
+};
+
 export const loginValidation = {
     mobileNumber: 'required|numeric',
     password: 'required|string',
