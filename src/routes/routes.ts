@@ -103,7 +103,7 @@ router.get('/user/all', (req, res, next) => {
 	getAllUser(req, res).catch(next);
 })
 
-router.delete('/user', validateBody(deleteUserValidation), (req, res, next) => {
+router.delete('/user', validateBody(deleteUserValidation, RouteSource?.Query), (req, res, next) => {
 	deleteUser(req, res).catch(next);
 })
 
