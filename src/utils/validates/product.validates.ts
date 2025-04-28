@@ -7,12 +7,12 @@ export const addProductValidation = {
     name: 'required|string',
     image: 'required|array',
     code: 'required|string',
-    price: 'required|number',
-    mrp: 'required|number',
-    qty: 'required|number',
-    inSuratCityCharge: 'required|number',
-    inGujratStateCharge: 'required|number',
-    inOutStateCharge: 'required|number',
+    price: 'required|numeric',
+    mrp: 'required|numeric',
+    qty: 'required|numeric',
+    inSuratCityCharge: 'required|numeric',
+    inGujratStateCharge: 'required|numeric',
+    inOutStateCharge: 'required|numeric',
     isPramotion: 'required|boolean',
     isPause: 'required|boolean'
 };
