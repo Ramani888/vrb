@@ -59,56 +59,80 @@ export const getProductDataById = async (productId: string) => {
                 $addFields: {
                     productBaseMetalObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productBaseMetalId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productBaseMetalId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productBaseMetalId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productBaseMetalId" },
                             else: null,
                         },
                     },
                     productPlatingObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productPlatingId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productPlatingId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productPlatingId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productPlatingId" },
                             else: null,
                         },
                     },
                     productStoneTypeObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productStoneTypeId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productStoneTypeId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productStoneTypeId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productStoneTypeId" },
                             else: null,
                         },
                     },
                     productTrendObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productTrendId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productTrendId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productTrendId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productTrendId" },
                             else: null,
                         },
                     },
                     productBrandObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productBrandId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productBrandId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productBrandId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productBrandId" },
                             else: null,
                         },
                     },
                     productColorObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productColorId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productColorId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productColorId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productColorId" },
                             else: null,
                         },
                     },
                     productOccasionObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productOccasionId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productOccasionId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productOccasionId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productOccasionId" },
                             else: null,
                         },
                     },
                     productTypeObjectId: {
                         $cond: {
-                            if: { $eq: [{ $strLenCP: "$productTypeId" }, 24] },
+                            if: { $and: [
+                                { $ifNull: ["$productTypeId", false] },
+                                { $eq: [{ $strLenCP: { $ifNull: ["$productTypeId", ""] } }, 24] }
+                            ]},
                             then: { $toObjectId: "$productTypeId" },
                             else: null,
                         },
