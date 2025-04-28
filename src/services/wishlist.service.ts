@@ -24,7 +24,7 @@ export const addWishlistData = async (data: IWishlist) => {
 
 export const removeWishlistData = async (productId: string, userId: string) => {
     try {
-        await Wishlist.findByIdAndDelete({ productId: productId, userId: userId });
+        await Wishlist.findOneAndDelete({ productId: productId, userId: userId });
         return;
     } catch (err) {
         throw err;
