@@ -286,7 +286,7 @@ router.get('/delivery/address', validateBody(getDeliveryAddressValidation, Route
 
 
 // Product Order
-router.post('', validateBody(addOrderValidation), (req, res, next) => {
+router.post('/order', validateBody(addOrderValidation), (req, res, next) => {
 	addOrder(req, res).catch(next);
 })
 
