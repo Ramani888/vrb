@@ -120,7 +120,7 @@ export const insertUnloadingVideo = async (req: AuthorizedRequest, res: Response
     try {
         const file = req.file;
         if (!file) {
-            res.status(StatusCodes.BAD_REQUEST).send({ error: 'Image file is missing.' });
+            res.status(StatusCodes.BAD_REQUEST).send({ error: 'Video file is missing.' });
             return;
         }
         const videoUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
