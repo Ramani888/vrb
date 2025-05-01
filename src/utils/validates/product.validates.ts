@@ -39,7 +39,7 @@ export const getProductByCategoryIdValidation = {
 }
 
 export const getProductByIdValidation = {
-    userId: 'required|string',
+    userId: 'string',
     productId: 'required|string'
 }
 
