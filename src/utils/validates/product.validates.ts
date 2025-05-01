@@ -26,7 +26,7 @@ export const getAllProductValidation = {
 }
 
 export const getPramotionProductValidation = {
-    userId: 'required|string'
+    userId: 'string'
 }
 
 export const updateProductActionValidation = {
