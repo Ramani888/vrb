@@ -34,7 +34,7 @@ export const updateProductActionValidation = {
 }
 
 export const getProductByCategoryIdValidation = {
-    userId: 'required|string',
+    userId: 'string',
     categoryId: 'required|string'
 }
 
