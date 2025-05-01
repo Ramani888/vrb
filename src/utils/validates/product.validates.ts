@@ -22,7 +22,7 @@ export const updateProductValidation = {
 }
 
 export const getAllProductValidation = {
-    userId: 'required|string'
+    userId: 'string'
 }
 
 export const getPramotionProductValidation = {
