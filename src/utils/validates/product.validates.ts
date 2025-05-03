@@ -13,8 +13,8 @@ export const addProductValidation = {
     inSuratCityCharge: 'required|numeric',
     inGujratStateCharge: 'required|numeric',
     inOutStateCharge: 'required|numeric',
-    isPramotion: 'required|boolean',
-    isPause: 'required|boolean'
+    isPramotion: 'boolean',
+    isPause: 'boolean'
 };
 
 export const updateProductValidation = {
