@@ -19,8 +19,8 @@ import { addToCart, getCart, getCartCount, removeToCart, updateCart } from "../c
 import { addProductValidation, deleteProductValidation, getAllProductValidation, getPramotionProductValidation, getProductByCategoryIdValidation, getProductByIdValidation, getSearchProductValidation, updateProductActionValidation, updateProductDiscountValidation, updateProductPramotionFlagValidation, updateProductRewardValidation, updateProductValidation } from "../utils/validates/product.validates";
 import { addProduct, deleteProduct, getAllProduct, getPramotionProduct, getProductBaseMetal, getProductBrand, getProductByCategoryId, getProductById, getProductColor, getProductOccasion, getProductPlating, getProductStoneType, getProductTrend, getProductType, getProductUnderFive, getProductUnderten, getProductUnderThree, getProductUnderTwo, getSearchProduct, updateProduct, updateProductAction, updateProductDiscount, updateProductPramotionFlag, updateProductReward } from "../controllers/product.controller";
 import { addDeliveryAddressValidation, deleteDeliveryAddressValidation, getDeliveryAddressValidation, updateDeliveryAddressValidation } from "../utils/validates/deliveryAddress.validate";
-import { addDeliveryAddress, addOrder, addTracking, capturePayment, deleteDeliveryAddress, getDeliveryAddress, getOrder, getOrderByUser, getPayment, insertUnloading, insertUnloadingImage, insertUnloadingVideo, refundPayment, updateDeliveryAddress, updateOrderStatus, updateTracking } from "../controllers/order.controller";
-import { addOrderValidation, addTrackingDetailsValidation, addUnloadingDetailsValidation, getNotificationCountValidation, getNotificationValidation, getOrderByUserValidation, insertDeviceTokenValidation, sendPushNotificationValidation, updateNotificationStatusValidation, updateOrderStatusValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
+import { addDeliveryAddress, addOrder, addTracking, capturePayment, createRazorpayOrder, deleteDeliveryAddress, getDeliveryAddress, getOrder, getOrderByUser, getOrderPaymentStatus, getPayment, insertUnloading, insertUnloadingImage, insertUnloadingVideo, refundPayment, updateDeliveryAddress, updateOrderStatus, updateTracking } from "../controllers/order.controller";
+import { addOrderValidation, addRazorpayOrderValidation, addTrackingDetailsValidation, addUnloadingDetailsValidation, checkRazorpayOrderValidation, getNotificationCountValidation, getNotificationValidation, getOrderByUserValidation, insertDeviceTokenValidation, sendPushNotificationValidation, updateNotificationStatusValidation, updateOrderStatusValidation, updateTrackingDetailsValidation } from "../utils/validates/order.validate";
 import { getDashboard } from "../controllers/dashboard.controller";
 import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
 import { getReward } from "../controllers/reward.controller";
@@ -301,6 +301,14 @@ router.get('/user/order', validateBody(getOrderByUserValidation, RouteSource?.Qu
 router.put('/order/status', validateBody(updateOrderStatusValidation, RouteSource?.Query), (req, res, next) => {
 	updateOrderStatus(req, res).catch(next);
 })
+
+router.post('/order/razorpay', validateBody(addRazorpayOrderValidation), (req, res, next) => {
+	createRazorpayOrder(req, res).catch(next);
+});
+
+router.get('/order/razorpay/verify', validateBody(checkRazorpayOrderValidation, RouteSource?.Query), (req, res, next) => {
+	getOrderPaymentStatus(req, res).catch(next);
+});
 
 
 // Tracking Order

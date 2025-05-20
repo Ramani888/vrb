@@ -43,6 +43,14 @@ export const addOrderValidation = {
     product: 'required|array'
 }
 
+export const addRazorpayOrderValidation = {
+    amount: 'required|numeric'
+}
+
+export const checkRazorpayOrderValidation = {
+    order_id: 'required|string'
+}
+
 export const getOrderByUserValidation = {
     userId: 'required|string'
 }

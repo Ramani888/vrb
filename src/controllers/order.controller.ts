@@ -17,6 +17,11 @@ dotenv.config();
 const firebaseApp = initializeApp(config.firebaseConfig);
 const storage = getStorage();
 
+const razorpay = new Razorpay({
+  key_id: 'rzp_live_g5FHxyE0FQivlu',
+  key_secret: 'C14bmIZD7SMjU4cZ0GjrID7g',
+});
+
 export const addDeliveryAddress = async (req: AuthorizedRequest, res: Response) => {
     const bodyData = req.body;
 
@@ -282,6 +287,45 @@ export const addOrder = async (req: AuthorizedRequest, res: Response) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ e });
     }
 }
+
+export const createRazorpayOrder = async (req: AuthorizedRequest, res: Response) => {
+    const { amount, currency = 'INR', receipt } = req.body;
+
+    try {
+        const options = {
+        amount: amount * 100, // amount in paise
+        currency,
+        receipt: receipt || `rcpt_${Date.now()}`,
+        };
+
+        const order = await razorpay.orders.create(options);
+        res.status(200).json(order);
+    } catch (error) {
+        res.status(500).json({ error: 'Order creation failed', details: error });
+    }
+}
+
+export const getOrderPaymentStatus = async (req: AuthorizedRequest, res: Response) => {
+  try {
+    const { order_id } = req.query;
+
+    const payments = await razorpay.orders.fetchPayments(order_id);
+
+    if (payments.items.length > 0) {
+      const payment = payments.items[0];
+
+      if (payment.status === 'captured' || payment.status === 'authorized') {
+        return res.status(200).json({ success: true, payment });
+      } else {
+        return res.status(200).json({ success: false, status: payment.status });
+      }
+    } else {
+      return res.status(200).json({ success: false, message: 'No payments found yet' });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err });
+  }
+};
 
 export const getOrder = async (req: AuthorizedRequest, res: Response) => {
     try {
