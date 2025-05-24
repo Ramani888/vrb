@@ -177,48 +177,52 @@ export const refundPayment = async (req: AuthorizedRequest, res: Response): Prom
     try {
         const { paymentId, payment } = req.body;
 
+        const razorpay = new Razorpay({
+            key_id: RAZOR_PAY_KEY_ID,
+            key_secret: RAZOR_PAY_KEY_SECRET,
+        });
+
+        // Fetch payment details
+        const paymentDetails = await razorpay.payments.fetch(paymentId);
+
         //Before capture payment
         const url = `https://${RAZOR_PAY_KEY_ID}:${RAZOR_PAY_KEY_SECRET}@api.razorpay.com/v1/payments/${paymentId}/capture`;
         const data = {
             amount: payment * 100,
             currency: 'INR',
         };
-    
-        const resCapture = await axios.post(url, data, {
-            auth: {
-            username: RAZOR_PAY_KEY_ID,
-            password: RAZOR_PAY_KEY_SECRET,
-            },
-        });
+
+        if (paymentDetails?.status === 'refunded' || paymentDetails?.status === 'failed') {
+            res.status(StatusCodes.BAD_REQUEST).send({ success: false, message: "Payment already refunded or failed." });
+        } else if (paymentDetails?.status !== 'captured') {
+            const resCapture = await axios.post(url, data, {
+                auth: {
+                username: RAZOR_PAY_KEY_ID,
+                password: RAZOR_PAY_KEY_SECRET,
+                },
+            });
+        }
       
         // Calculate the refund amount as 80% of the payment amount
-        const amount = Math.round((payment * 80) / 100);
-        // console.log('amount:', amount);
+        const amount = Number((payment * 80) / 100).toFixed(2);
     
         const refundData = {
-            amount: amount * 100,
+            amount: Number(amount) * 100,
             speed: 'normal',
             notes: {
-            notes_key_1: "Beam me up Scotty.",
-            notes_key_2: "Engage"
+                notes_key_1: "Beam me up Scotty.",
+                notes_key_2: "Engage"
             },
-            receipt: "Receipt No. 31",
+            receipt: `Receipt_${paymentId}_${Date.now()}`, // Make receipt unique
         };
     
         // console.log(`Refund Request Data: ${JSON.stringify(refundData)}`);
     
-        const razorpay = new Razorpay({
-            key_id: RAZOR_PAY_KEY_ID,
-            key_secret: RAZOR_PAY_KEY_SECRET,
-        });
-    
         const response = await razorpay.payments.refund(paymentId, refundData);
-    
-        // console.log('Response:', response);
     
         res.status(StatusCodes.OK).send({ success: true, message: "Payment refunded successfully." });
     } catch (err) {
-        console.error(err);
+        console.error('err', err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
     }
 };
