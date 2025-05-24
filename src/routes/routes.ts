@@ -432,12 +432,16 @@ router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (
 router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), async (req, res): Promise<void> => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!;
   const signature = req.headers["x-razorpay-signature"];
-  const body = req.body;
+  const body = req?.body;
+
+  console.log("🔔 Webhook received:", body);
 
   const expectedSignature = crypto
     .createHmac("sha256", webhookSecret)
     .update(body)
     .digest("hex");
+
+	console.log('expectedSignature:', expectedSignature);
 
   if (signature !== expectedSignature) {
     res.status(400).send("Invalid signature");
@@ -445,6 +449,8 @@ router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), asyn
   }
 
   const data = JSON.parse(body.toString());
+
+  console.log("🔔 Webhook Data:", data);
 
   if (data.event === "payment.captured") {
     const payment = data.payload.payment.entity;
