@@ -6,6 +6,7 @@ import multerS3 from "multer-s3";
 import multer from "multer";
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv"
+import crypto from "crypto";
 import { addBanner, deleteBanner, getAllBanner, updateBanner } from "../controllers/banner.controller";
 import { addBannerValidation, deleteBannerValidation, updateBannerValidation } from "../utils/validates/banner.validate";
 import { addAdsPoster, deleteAdsPoster, getAllAdsPoster, updateAdsPoster } from "../controllers/adsPoster.controller";
@@ -423,4 +424,34 @@ router.post('/refund/payment', validateBody(addCapturePaymentValidation), (req, 
 router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (req, res, next) => {
 	getPayment(req, res).catch(next);
 })
+
+
+
+// Webhook
+router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), (req, res): void => {
+  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!;
+  const signature = req.headers["x-razorpay-signature"];
+  const body = req.body;
+
+  const expectedSignature = crypto
+	.createHmac("sha256", webhookSecret)
+	.update(body)
+	.digest("hex");
+
+  if (signature !== expectedSignature) {
+	res.status(400).send("Invalid signature");
+	return;
+  }
+
+  const data = JSON.parse(body.toString());
+
+  if (data.event === "payment.captured") {
+	const payment = data.payload.payment.entity;
+	// 💾 Update your database here
+	console.log("✅ Payment Captured:", payment);
+  }
+
+  res.status(200).send("Webhook received");
+});
+
 export default router;
