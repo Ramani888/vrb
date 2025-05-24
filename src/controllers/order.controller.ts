@@ -311,16 +311,23 @@ export const getOrderPaymentStatus = async (req: AuthorizedRequest, res: Respons
 
     const payments = await razorpay.orders.fetchPayments(order_id);
 
-    if (payments.items.length > 0) {
-      const payment = payments.items[0];
+    // if (payments.items.length > 0) {
+    //   const payment = payments.items[0];
 
-      if (payment.status === 'captured' || payment.status === 'authorized') {
-        return res.status(200).json({ success: true, payment });
-      } else {
-        return res.status(200).json({ success: false, status: payment.status });
-      }
+    //   if (payment.status === 'captured' || payment.status === 'authorized') {
+    //     return res.status(200).json({ success: true, payment });
+    //   } else {
+    //     return res.status(200).json({ success: false, status: payment.status });
+    //   }
+    // } else {
+    //   return res.status(200).json({ success: false, message: 'No payments found yet' });
+    // }
+
+    const paidPayment = payments.items.find((p) => p.status === "captured" || p.status === "authorized");
+    if (paidPayment) {
+      res.json({ status: "paid", payment_id: paidPayment.id });
     } else {
-      return res.status(200).json({ success: false, message: 'No payments found yet' });
+      res.json({ status: "pending" });
     }
   } catch (err) {
     res.status(500).json({ success: false, error: err });
