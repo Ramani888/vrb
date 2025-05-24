@@ -12,6 +12,7 @@ import Razorpay from 'razorpay';
 import { addRewardData } from "../services/reward.service";
 import { removeToCartData } from "../services/cart.service";
 import { updateProductCartFlag } from "../services/product.service";
+import { RazorpayOrder } from "../models/razorpayOrder.model";
 dotenv.config();
 
 const firebaseApp = initializeApp(config.firebaseConfig);
@@ -303,6 +304,16 @@ export const createRazorpayOrder = async (req: AuthorizedRequest, res: Response)
         };
 
         const order = await razorpay.orders.create(options);
+
+         // Save to MongoDB
+        await RazorpayOrder.create({
+            razorpayOrderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            receipt: order.receipt,
+            status: order.status,
+        });
+
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ error: 'Order creation failed', details: error });
@@ -327,9 +338,16 @@ export const getOrderPaymentStatus = async (req: AuthorizedRequest, res: Respons
     //   return res.status(200).json({ success: false, message: 'No payments found yet' });
     // }
 
-    const paidPayment = payments.items.find((p) => p.status === "captured" || p.status === "authorized");
-    if (paidPayment) {
-      res.json({ status: "paid", payment_id: paidPayment.id });
+    // Find the order in your MongoDB database
+    const order = await RazorpayOrder.findOne({ razorpayOrderId: order_id });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found in database" });
+    }
+
+    // const paidPayment = payments.items.find((p) => p.status === "captured" || p.status === "authorized");
+    if ((order?.status === "captured" || order?.status === "authorized") && order?.paymentId) {
+      res.json({ status: "paid", payment_id: order?.paymentId });
     } else {
       res.json({ status: "pending" });
     }

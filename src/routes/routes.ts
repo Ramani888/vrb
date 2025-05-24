@@ -25,6 +25,7 @@ import { addOrderValidation, addRazorpayOrderValidation, addTrackingDetailsValid
 import { getDashboard } from "../controllers/dashboard.controller";
 import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
 import { getReward } from "../controllers/reward.controller";
+import { RazorpayOrder } from "../models/razorpayOrder.model";
 dotenv.config();
 
 enum RouteSource {
@@ -428,27 +429,39 @@ router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (
 
 
 // Webhook
-router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), (req, res): void => {
+router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), async (req, res): Promise<void> => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!;
   const signature = req.headers["x-razorpay-signature"];
   const body = req.body;
 
   const expectedSignature = crypto
-	.createHmac("sha256", webhookSecret)
-	.update(body)
-	.digest("hex");
+    .createHmac("sha256", webhookSecret)
+    .update(body)
+    .digest("hex");
 
   if (signature !== expectedSignature) {
-	res.status(400).send("Invalid signature");
-	return;
+    res.status(400).send("Invalid signature");
+    return;
   }
 
   const data = JSON.parse(body.toString());
 
   if (data.event === "payment.captured") {
-	const payment = data.payload.payment.entity;
-	// 💾 Update your database here
-	console.log("✅ Payment Captured:", payment);
+    const payment = data.payload.payment.entity;
+	console.log("🔔 Payment Captured Event:", payment);
+    // 💾 Update your database here
+    try {
+      await RazorpayOrder.findOneAndUpdate(
+        { razorpayOrderId: payment?.order_id },
+        {
+          status: payment?.status,      // e.g., "captured"
+          paymentId: payment?.id        // store the payment id
+        }
+      );
+      console.log("✅ Payment Captured and DB updated:", payment);
+    } catch (err) {
+      console.error("❌ Error updating RazorpayOrder:", err);
+    }
   }
 
   res.status(200).send("Webhook received");
