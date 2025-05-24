@@ -429,33 +429,37 @@ router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (
 
 
 // Webhook
+// Place this webhook route BEFORE any express.json() or body-parser.json() middleware!
 router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), async (req, res): Promise<void> => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET!;
   const signature = req.headers["x-razorpay-signature"];
-  const body = req?.body;
+  const body = req.body; // This is a Buffer because of express.raw
 
-  console.log("🔔 Webhook received:", body);
+  console.log("🔔 Webhook received (raw body):", body);
 
+  // Calculate expected signature using the raw body
   const expectedSignature = crypto
     .createHmac("sha256", webhookSecret)
-    .update(body)
+    .update(body) // body is Buffer
     .digest("hex");
 
-	console.log('expectedSignature:', expectedSignature);
+  console.log('expectedSignature:', expectedSignature);
 
   if (signature !== expectedSignature) {
     res.status(400).send("Invalid signature");
     return;
   }
 
+  // Parse the raw body to JSON
   const data = JSON.parse(body.toString());
 
   console.log("🔔 Webhook Data:", data);
 
+  // Handle payment.captured event
   if (data.event === "payment.captured") {
     const payment = data.payload.payment.entity;
-	console.log("🔔 Payment Captured Event:", payment);
-    // 💾 Update your database here
+    console.log("🔔 Payment Captured Event:", payment);
+    // Update your database here
     try {
       await RazorpayOrder.findOneAndUpdate(
         { razorpayOrderId: payment?.order_id },
@@ -469,6 +473,8 @@ router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), asyn
       console.error("❌ Error updating RazorpayOrder:", err);
     }
   }
+
+  // You can handle other events like payment.failed, etc., here if needed
 
   res.status(200).send("Webhook received");
 });
