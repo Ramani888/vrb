@@ -435,6 +435,8 @@ router.post("/razorpay/webhook", express.raw({ type: 'application/json' }), asyn
   const signature = req.headers["x-razorpay-signature"];
   const body = req.body; // This is a Buffer because of express.raw
 
+  console.log('full console', JSON.stringify(req.body, null, 2));
+
   console.log("🔔 Webhook received (raw body):", body);
 
   // Calculate expected signature using the raw body
