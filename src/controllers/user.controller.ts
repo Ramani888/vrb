@@ -1,4 +1,4 @@
-import { deleteUserData, getAdminByEmail, getAllUserData, getUserByNumber, getUserDataById, insertDeviceTokenData, insertRegisterUserData, updateUserData, updateUserDataStatus } from "../services/user.service";
+import { deleteUserData, getAdminByEmail, getAllUserData, getPaymentMethodData, getUserByNumber, getUserDataById, insertDeviceTokenData, insertRegisterUserData, updatePaymentMethodData, updateUserData, updateUserDataStatus } from "../services/user.service";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import { AuthorizedRequest } from "../types/user";
@@ -216,6 +216,27 @@ export const updateUserStatus = async (req: AuthorizedRequest, res: Response) =>
     try {
         await updateUserDataStatus(bodyData);
         return res.status(StatusCodes.OK).send({ success: true, message: "User status updated." });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const updatePaymentMethod = async (req: AuthorizedRequest, res: Response) => {
+    const { isCashOnDelivery } = req?.query;
+    try {
+        await updatePaymentMethodData(isCashOnDelivery)
+        res.status(StatusCodes.OK).send({ success: true, message: "Payment method updated successfully." });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+    }
+}
+
+export const getPaymentMethod = async (req: AuthorizedRequest, res: Response) => {
+    try {
+        const data = await getPaymentMethodData();
+        res.status(StatusCodes.OK).send({ data });
     } catch (err) {
         console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });

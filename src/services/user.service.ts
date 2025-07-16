@@ -1,5 +1,6 @@
 import { Admin } from "../models/admin.mode";
 import { DeviceToken } from "../models/deviceToken.model";
+import { Setting } from "../models/setting.model";
 import { User } from "../models/user.model";
 import { IDeviceToken, IUsers } from "../types/user";
 import mongoose from "mongoose";
@@ -106,5 +107,27 @@ export const deleteDeviceTokenData = async (token: string) => {
         return;
     } catch (err) {
         throw err;
+    }
+}
+
+export const updatePaymentMethodData = async (isCashOnDelivery: boolean) => {
+    try {
+        await Setting.updateMany(
+            {},
+            { $set: { isCashOnDelivery } },
+            { upsert: false }
+        );
+        return;
+    } catch (e) {
+        throw e;
+    }
+}
+
+export const getPaymentMethodData = async () => {
+    try {
+        const result = await Setting.findOne();
+        return result?.toObject();
+    } catch (e) {
+        throw e;
     }
 }

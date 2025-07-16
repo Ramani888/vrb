@@ -1,7 +1,7 @@
 import express from "express";
 import { validateBody } from "../middleware/bodyValidate.middleware";
-import { addCapturePaymentValidation, adminLoginValidation, deleteUserValidation, getPaymentValidation, getRewardDataValidation, getUserByIdValidation, loginValidation, registerLoginValidation, registerValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
-import { adminLogin, deleteUser, getAllUser, getUserById, insertRegisterUser, updateUser, updateUserStatus, userLogin, userRegisterLogin } from "../controllers/user.controller";
+import { addCapturePaymentValidation, adminLoginValidation, deleteUserValidation, getPaymentValidation, getRewardDataValidation, getUserByIdValidation, loginValidation, registerLoginValidation, registerValidation, updatePaymentMethodValidation, updateUserStatusValidation, updateUserValidation } from "../utils/validates/user.validate";
+import { adminLogin, deleteUser, getAllUser, getPaymentMethod, getUserById, insertRegisterUser, updatePaymentMethod, updateUser, updateUserStatus, userLogin, userRegisterLogin } from "../controllers/user.controller";
 import multerS3 from "multer-s3";
 import multer from "multer";
 import { S3Client } from "@aws-sdk/client-s3";
@@ -26,6 +26,7 @@ import { getDashboard } from "../controllers/dashboard.controller";
 import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
 import { getReward } from "../controllers/reward.controller";
 import { RazorpayOrder } from "../models/razorpayOrder.model";
+import { get } from "lodash";
 dotenv.config();
 
 enum RouteSource {
@@ -426,6 +427,15 @@ router.get('/payment', validateBody(getPaymentValidation, RouteSource?.Query), (
 	getPayment(req, res).catch(next);
 })
 
+
+// Update Payment Method Setting//
+router.put('/payment/method', validateBody(updatePaymentMethodValidation, RouteSource?.Query), (req, res, next) => {
+	updatePaymentMethod(req, res).catch(next);
+})
+
+router.get('/payment/method', async (req, res, next) => {
+	getPaymentMethod(req, res).catch(next);
+});
 
 
 // Webhook

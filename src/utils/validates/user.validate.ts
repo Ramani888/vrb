@@ -54,3 +54,7 @@ export const addCapturePaymentValidation = {
 export const getPaymentValidation = {
     paymentId: 'required|string'
 }
+
+export const updatePaymentMethodValidation = {
+    isCashOnDelivery: 'required|boolean'
+}
