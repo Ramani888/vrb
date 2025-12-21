@@ -37,7 +37,7 @@ export const addUnloadingDetailsValidation = {
 };
 
 export const addOrderValidation = {
-    paymentId: 'required|string',
+    paymentId: 'string',
     userId: 'required|string',
     totalAmount: 'required|numeric',
     product: 'required|array'

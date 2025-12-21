@@ -5,7 +5,7 @@ const env = process.env;
 const OrderSchema = new Schema({
     paymentId: {
         type: String,
-        required: true
+        required: false
     },
     totalAmount: {
         type: Number,
