@@ -9,5 +9,8 @@ const ProductPlatingSchema = new Schema({
     },
 })
 
+// Indexes for faster queries
+ProductPlatingSchema.index({ name: 1 }); // Index for name lookups
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const ProductPlating = dbConnection.model('ProductPlating', ProductPlatingSchema, 'ProductPlating');

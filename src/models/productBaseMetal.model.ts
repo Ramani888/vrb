@@ -9,5 +9,8 @@ const ProductBaseMetalSchema = new Schema({
     },
 })
 
+// Indexes for faster queries
+ProductBaseMetalSchema.index({ name: 1 }); // Index for name lookups
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const ProductBaseMetal = dbConnection.model('ProductBaseMetal', ProductBaseMetalSchema, 'ProductBaseMetal');

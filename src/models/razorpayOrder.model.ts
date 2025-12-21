@@ -10,5 +10,11 @@ const RazorpayOrderSchema = new mongoose.Schema({
   paymentId: { type: String }
 }, {timestamps: true});
 
+// Indexes for faster queries
+RazorpayOrderSchema.index({ razorpayOrderId: 1 }, { unique: true }); // Unique index for razorpay order ID
+RazorpayOrderSchema.index({ paymentId: 1 }); // Index for payment lookups
+RazorpayOrderSchema.index({ status: 1 }); // Index for status filtering
+RazorpayOrderSchema.index({ createdAt: -1 }); // Index for sorting by creation date
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const RazorpayOrder = dbConnection.model('RazorpayOrder', RazorpayOrderSchema, 'RazorpayOrder');

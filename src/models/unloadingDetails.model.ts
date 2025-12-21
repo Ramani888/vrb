@@ -15,5 +15,9 @@ const UnloadingDetailsSchema = new Schema({
     }
 }, {timestamps: true})
 
+// Indexes for faster queries
+UnloadingDetailsSchema.index({ orderId: 1 }); // Index for order lookups
+UnloadingDetailsSchema.index({ createdAt: -1 }); // Index for sorting by date
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const UnloadingDetails = dbConnection.model('UnloadingDetails', UnloadingDetailsSchema, 'UnloadingDetails');

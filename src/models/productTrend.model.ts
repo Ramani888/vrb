@@ -9,5 +9,8 @@ const ProductTrendSchema = new Schema({
     },
 })
 
+// Indexes for faster queries
+ProductTrendSchema.index({ name: 1 }); // Index for name lookups
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const ProductTrend = dbConnection.model('ProductTrend', ProductTrendSchema, 'ProductTrend');

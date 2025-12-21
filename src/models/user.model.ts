@@ -52,5 +52,12 @@ const UserSchema = new Schema({
     },
 }, {timestamps: true})
 
+// Indexes for faster queries
+UserSchema.index({ mobileNumber: 1 }, { unique: true }); // Unique index for mobile number
+UserSchema.index({ email: 1 }); // Index for email lookups
+UserSchema.index({ isActive: 1 }); // Index for active user queries
+UserSchema.index({ city: 1, state: 1 }); // Compound index for location-based queries
+UserSchema.index({ createdAt: -1 }); // Index for sorting by creation date
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const User = dbConnection.model('User', UserSchema, 'Users');

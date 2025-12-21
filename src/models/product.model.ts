@@ -95,5 +95,19 @@ const ProductSchema = new Schema({
     }
 }, { timestamps: true });
 
+// Indexes for faster queries
+ProductSchema.index({ categoryId: 1 }); // Index for category filtering
+ProductSchema.index({ code: 1 }, { unique: true }); // Unique index for product code
+ProductSchema.index({ name: 1 }); // Index for name search
+ProductSchema.index({ price: 1 }); // Index for price sorting/filtering
+ProductSchema.index({ isPramotion: 1 }); // Index for promotion filtering
+ProductSchema.index({ isPause: 1 }); // Index for pause status filtering
+ProductSchema.index({ productBrandId: 1 }); // Index for brand filtering
+ProductSchema.index({ productTypeId: 1 }); // Index for type filtering
+ProductSchema.index({ createdAt: -1 }); // Index for sorting by creation date
+// Compound indexes for common query combinations
+ProductSchema.index({ categoryId: 1, isPause: 1, isPramotion: 1 }); // Combined filter queries
+ProductSchema.index({ categoryId: 1, price: 1 }); // Category with price sorting
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const Product = dbConnection.model('Product', ProductSchema, 'Product');

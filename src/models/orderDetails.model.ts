@@ -25,5 +25,11 @@ const OrderDetailsSchema = new Schema({
     }
 }, { timestamps: true });
 
+// Indexes for faster queries
+OrderDetailsSchema.index({ userId: 1 }); // Index for user's order details
+OrderDetailsSchema.index({ orderId: 1 }); // Index for order's details
+OrderDetailsSchema.index({ productId: 1 }); // Index for product lookups
+OrderDetailsSchema.index({ createdAt: -1 }); // Index for sorting by date
+
 const dbConnection = mongoose.connection.useDb(env.MONGODB_DATABASE ?? '');
 export const OrderDetails = dbConnection.model('OrderDetails', OrderDetailsSchema, 'OrderDetails');
