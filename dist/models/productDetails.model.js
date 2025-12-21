@@ -55,5 +55,14 @@ const ProductDetailsSchema = new mongoose_1.Schema({
         default: false
     }
 }, { timestamps: true });
+// Indexes for faster queries
+ProductDetailsSchema.index({ userId: 1 }); // Index for user's product details
+ProductDetailsSchema.index({ productId: 1 }); // Index for product lookups
+ProductDetailsSchema.index({ isWishlist: 1 }); // Index for wishlist filtering
+ProductDetailsSchema.index({ isCart: 1 }); // Index for cart filtering
+// Compound indexes for common query combinations
+ProductDetailsSchema.index({ userId: 1, productId: 1 }, { unique: true }); // Unique combination
+ProductDetailsSchema.index({ userId: 1, isWishlist: 1 }); // User's wishlist items
+ProductDetailsSchema.index({ userId: 1, isCart: 1 }); // User's cart items
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.ProductDetails = dbConnection.model('ProductDetails', ProductDetailsSchema, 'ProductDetails');

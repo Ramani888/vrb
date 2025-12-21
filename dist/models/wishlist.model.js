@@ -47,5 +47,10 @@ const WishlistSchema = new mongoose_1.Schema({
         required: true,
     }
 }, { timestamps: true });
+// Indexes for faster queries
+WishlistSchema.index({ userId: 1 }); // Index for user's wishlist items
+WishlistSchema.index({ productId: 1 }); // Index for product lookups
+// Compound index to ensure user can't add same product twice
+WishlistSchema.index({ userId: 1, productId: 1 }, { unique: true }); // Unique combination
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.Wishlist = dbConnection.model('Wishlist', WishlistSchema, 'Wishlist');

@@ -60,5 +60,13 @@ const OrderSchema = new mongoose_1.Schema({
         default: 'Pending'
     }
 }, { timestamps: true });
+// Indexes for faster queries
+OrderSchema.index({ userId: 1 }); // Index for user's orders
+OrderSchema.index({ status: 1 }); // Index for status filtering
+OrderSchema.index({ paymentId: 1 }); // Index for payment lookup
+OrderSchema.index({ createdAt: -1 }); // Index for sorting by date
+// Compound indexes for common query combinations
+OrderSchema.index({ userId: 1, status: 1 }); // User's orders by status
+OrderSchema.index({ userId: 1, createdAt: -1 }); // User's orders sorted by date
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.Order = dbConnection.model('Order', OrderSchema, 'Order');

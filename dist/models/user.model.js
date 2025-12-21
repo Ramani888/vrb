@@ -56,5 +56,11 @@ const UserSchema = new mongoose_2.Schema({
         default: true
     },
 }, { timestamps: true });
+// Indexes for faster queries
+UserSchema.index({ mobileNumber: 1 }, { unique: true }); // Unique index for mobile number
+UserSchema.index({ email: 1 }); // Index for email lookups
+UserSchema.index({ isActive: 1 }); // Index for active user queries
+UserSchema.index({ city: 1, state: 1 }); // Compound index for location-based queries
+UserSchema.index({ createdAt: -1 }); // Index for sorting by creation date
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.User = dbConnection.model('User', UserSchema, 'Users');

@@ -47,5 +47,7 @@ const AdminSchema = new mongoose_1.Schema({
         required: true,
     },
 }, { timestamps: true });
+// Indexes for faster queries
+AdminSchema.index({ email: 1 }, { unique: true }); // Unique index for admin email
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.Admin = dbConnection.model('Admin', AdminSchema, 'Admin');

@@ -55,5 +55,10 @@ const CartSchema = new mongoose_1.Schema({
         required: true
     }
 }, { timestamps: true });
+// Indexes for faster queries
+CartSchema.index({ userId: 1 }); // Index for user's cart items
+CartSchema.index({ productId: 1 }); // Index for product lookups
+// Compound index to ensure user can't add same product twice
+CartSchema.index({ userId: 1, productId: 1 }, { unique: true }); // Unique combination
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.Cart = dbConnection.model('Cart', CartSchema, 'Cart');

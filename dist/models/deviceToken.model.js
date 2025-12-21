@@ -47,5 +47,9 @@ const DeviceTokenSchema = new mongoose_1.Schema({
         required: true,
     }
 }, { timestamps: true });
+// Indexes for faster queries
+DeviceTokenSchema.index({ userId: 1 }); // Index for user's device tokens
+DeviceTokenSchema.index({ token: 1 }); // Index for token lookups
+DeviceTokenSchema.index({ userId: 1, token: 1 }, { unique: true }); // Unique combination
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.DeviceToken = dbConnection.model('DeviceToken', DeviceTokenSchema, 'DeviceToken');

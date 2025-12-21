@@ -49,5 +49,8 @@ const UnloadingDetailsSchema = new mongoose_1.Schema({
         type: String
     }
 }, { timestamps: true });
+// Indexes for faster queries
+UnloadingDetailsSchema.index({ orderId: 1 }); // Index for order lookups
+UnloadingDetailsSchema.index({ createdAt: -1 }); // Index for sorting by date
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.UnloadingDetails = dbConnection.model('UnloadingDetails', UnloadingDetailsSchema, 'UnloadingDetails');

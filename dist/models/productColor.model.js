@@ -47,5 +47,8 @@ const ProductColorSchema = new mongoose_1.Schema({
         required: true
     },
 });
+// Indexes for faster queries
+ProductColorSchema.index({ name: 1 }); // Index for name lookups
+ProductColorSchema.index({ color: 1 }); // Index for color lookups
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.ProductColor = dbConnection.model('ProductColor', ProductColorSchema, 'ProductColor');

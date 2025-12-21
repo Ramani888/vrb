@@ -75,5 +75,10 @@ const DeliveryAddressSchema = new mongoose_1.Schema({
         required: true
     }
 }, { timestamps: true });
+// Indexes for faster queries
+DeliveryAddressSchema.index({ userId: 1 }); // Index for user's delivery addresses
+DeliveryAddressSchema.index({ pinCode: 1 }); // Index for pincode lookups
+DeliveryAddressSchema.index({ city: 1, state: 1 }); // Compound index for location-based queries
+DeliveryAddressSchema.index({ createdAt: -1 }); // Index for sorting by creation date
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.DeliveryAddress = dbConnection.model('DeliveryAddress', DeliveryAddressSchema, 'DeliveryAddress');

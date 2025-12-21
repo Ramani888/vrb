@@ -47,5 +47,8 @@ const BannerSchema = new mongoose_1.Schema({
         required: true
     }
 }, { timestamps: true });
+// Indexes for faster queries
+BannerSchema.index({ name: 1 }); // Index for banner name lookups
+BannerSchema.index({ createdAt: -1 }); // Index for sorting by creation date
 const dbConnection = mongoose_1.default.connection.useDb((_a = env.MONGODB_DATABASE) !== null && _a !== void 0 ? _a : '');
 exports.Banner = dbConnection.model('Banner', BannerSchema, 'Banner');
