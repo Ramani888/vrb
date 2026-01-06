@@ -40,6 +40,7 @@ const dashboard_controller_1 = require("../controllers/dashboard.controller");
 const notification_controller_1 = require("../controllers/notification.controller");
 const reward_controller_1 = require("../controllers/reward.controller");
 const razorpayOrder_model_1 = require("../models/razorpayOrder.model");
+const path_1 = __importDefault(require("path"));
 dotenv_1.default.config();
 var RouteSource;
 (function (RouteSource) {
@@ -78,6 +79,42 @@ const uploadVideo = (0, multer_1.default)({
             cb(null, `videos/${filename}`); // 🔹 Uploads to 'uploads/' folder
         },
     }),
+});
+// Multer storage
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        if (file.mimetype.startsWith("image")) {
+            cb(null, "uploads/images");
+        }
+        else if (file.mimetype.startsWith("video")) {
+            cb(null, "uploads/videos");
+        }
+        else {
+            cb(new Error("Invalid file type"), "");
+        }
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, uniqueName + path_1.default.extname(file.originalname));
+    },
+});
+// File filter
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith("image") ||
+        file.mimetype.startsWith("video")) {
+        cb(null, true);
+    }
+    else {
+        cb(null, false);
+    }
+};
+// Multer instance
+const vpsUpload = (0, multer_1.default)({
+    storage,
+    limits: {
+        fileSize: 100 * 1024 * 1024, // 100MB
+    },
+    fileFilter,
 });
 // Auth
 router.post('/registerUser', (0, bodyValidate_middleware_1.validateBody)(user_validate_1.registerValidation), (req, res, next) => {
@@ -343,6 +380,21 @@ router.put('/payment/method', (0, bodyValidate_middleware_1.validateBody)(user_v
 router.get('/payment/method', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     (0, user_controller_1.getPaymentMethod)(req, res).catch(next);
 }));
+// Upload API
+router.post("/upload", vpsUpload.single("file"), (req, res) => {
+    if (!req.file) {
+        res.status(400).json({ message: "File not uploaded" });
+        return;
+    }
+    const folder = req.file.mimetype.startsWith("image")
+        ? "images"
+        : "videos";
+    res.status(200).json({
+        success: true,
+        message: "File uploaded successfully",
+        url: `${process.env.APP_URL}/uploads/${folder}/${req.file.filename}`,
+    });
+});
 // Webhook
 // Place this webhook route BEFORE any express.json() or body-parser.json() middleware!
 router.post("/razorpay/webhook", express_1.default.raw({ type: 'application/json' }), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
