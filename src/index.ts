@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import cors from 'cors'; // Change to ES module import
 import routes from './routes/routes';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -24,6 +26,17 @@ database.once('connected', () => {
 
 app.use(cors());
 app.use(express.json());
+
+// Create upload folders if not exist
+["uploads/images", "uploads/videos"].forEach((dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+// Serve static files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use('/api', routes);
 app.get('/', (req, res) => {
   res.json("server working....");

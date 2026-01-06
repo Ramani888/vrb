@@ -26,7 +26,7 @@ import { getDashboard } from "../controllers/dashboard.controller";
 import { getNotification, getNotificationCount, insertDeviceToken, pushNotification, updateNotificationStatus } from "../controllers/notification.controller";
 import { getReward } from "../controllers/reward.controller";
 import { RazorpayOrder } from "../models/razorpayOrder.model";
-import { get } from "lodash";
+import path from "path";
 dotenv.config();
 
 enum RouteSource {
@@ -70,6 +70,45 @@ const uploadVideo = multer({
 		cb(null, `videos/${filename}`); // 🔹 Uploads to 'uploads/' folder
 	  },
 	}),
+});
+
+// Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+	if (file.mimetype.startsWith("image")) {
+	  cb(null, "uploads/images");
+	} else if (file.mimetype.startsWith("video")) {
+	  cb(null, "uploads/videos");
+	} else {
+	  cb(new Error("Invalid file type"), "");
+	}
+  },
+  filename: (req, file, cb) => {
+	const uniqueName =
+	  Date.now() + "-" + Math.round(Math.random() * 1e9);
+	cb(null, uniqueName + path.extname(file.originalname));
+  },
+});
+
+// File filter
+const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  if (
+	file.mimetype.startsWith("image") ||
+	file.mimetype.startsWith("video")
+  ) {
+	cb(null, true);
+  } else {
+	cb(null, false);
+  }
+};
+
+// Multer instance
+const vpsUpload = multer({
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB
+  },
+  fileFilter,
 });
 
 
@@ -435,6 +474,24 @@ router.put('/payment/method', validateBody(updatePaymentMethodValidation, RouteS
 
 router.get('/payment/method', async (req, res, next) => {
 	getPaymentMethod(req, res).catch(next);
+});
+
+// Upload API
+router.post("/upload", vpsUpload.single("file"), (req, res) => {
+	if (!req.file) {
+		res.status(400).json({ message: "File not uploaded" });
+		return;
+	}
+
+	const folder = req.file.mimetype.startsWith("image")
+		? "images"
+		: "videos";
+
+	res.status(200).json({
+		success: true,
+		message: "File uploaded successfully",
+		url: `${process.env.APP_URL}/uploads/${folder}/${req.file.filename}`,
+	});
 });
 
 
