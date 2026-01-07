@@ -190,12 +190,12 @@ const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             });
         }
         // Prepare video path
-        let videoPath = bodyData.existingVideo || undefined;
+        let videoPath = bodyData.existingVideo || null;
         if ((files === null || files === void 0 ? void 0 : files.video) && files.video.length > 0) {
             videoPath = `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}`;
         }
         else if (bodyData.deleteVideo) {
-            videoPath = undefined;
+            videoPath = null;
         }
         // Prepare update data
         const updateData = {

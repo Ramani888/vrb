@@ -174,11 +174,11 @@ export const updateProduct = async (req: AuthorizedRequest, res: Response) => {
         }
 
         // Prepare video path
-        let videoPath = bodyData.existingVideo || undefined;
+        let videoPath = bodyData.existingVideo || null;
         if (files?.video && files.video.length > 0) {
             videoPath = `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}`;
         } else if (bodyData.deleteVideo) {
-            videoPath = undefined;
+            videoPath = null;
         }
 
         // Prepare update data
