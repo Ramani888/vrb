@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import dotenv from "dotenv"
 import { addAdsPosterData, deleteAdsPosterData, getAdsPosterDataById, getAllAdsPosterData, updateAdsPosterData } from "../services/adsPoster.service";
-import { deleteImageS3 } from "../utils/helpers/global";
+import { deleteImageS3, deleteVpsUpload } from "../utils/helpers/global";
 dotenv.config();
 
 export const addAdsPoster = async (req: AuthorizedRequest, res: Response) => {
@@ -14,7 +14,7 @@ export const addAdsPoster = async (req: AuthorizedRequest, res: Response) => {
         return;
     }
 
-    const posterUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const posterUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
     try {
         const data = {
@@ -41,12 +41,12 @@ export const updateAdsPoster = async (req: AuthorizedRequest, res: Response) => 
         }
 
         if (file) {
-            const posterUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+            const posterUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
             // Delete Image (if exists)
             const imagePath = adsPosterData[0]?.imagePath ?? ''; // Ensure it's a string
             if (imagePath) {
-                await deleteImageS3(imagePath);
+                await deleteVpsUpload(imagePath);
             }
 
             // Insert Data
@@ -89,7 +89,7 @@ export const deleteAdsPoster = async (req: AuthorizedRequest, res: Response) => 
         // Ensure imagePath is a valid string before deleting
         const imagePath = adsPosterData[0]?.imagePath ?? ''; 
         if (imagePath) {
-            await deleteImageS3(imagePath);
+            await deleteVpsUpload(imagePath);
         }
 
         // Delete ad poster data

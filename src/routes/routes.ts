@@ -199,11 +199,11 @@ router.delete('/banner', validateBody(deleteBannerValidation, RouteSource?.Query
 
 
 // Ads Poster
-router.post('/ads/poster', upload.single('image'), (req, res, next) => {
+router.post('/ads/poster', vpsUpload.single('image'), (req, res, next) => {
 	addAdsPoster(req, res).catch(next);
 })
 
-router.put('/ads/poster', upload.single('image'), validateBody(updateAdsPosterValidation), (req, res, next) => {
+router.put('/ads/poster', vpsUpload.single('image'), validateBody(updateAdsPosterValidation), (req, res, next) => {
 	updateAdsPoster(req, res).catch(next);
 })
 
