@@ -12,9 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RAZOR_PAY_KEY_SECRET = exports.RAZOR_PAY_KEY_ID = exports.checkUserGujratState = exports.checkUserLocationAndGetDeliveryCharge = exports.isEqualIgnoreCase = exports.deleteImageS3 = exports.generatePassword = void 0;
+exports.deleteVpsUpload = exports.RAZOR_PAY_KEY_SECRET = exports.RAZOR_PAY_KEY_ID = exports.checkUserGujratState = exports.checkUserLocationAndGetDeliveryCharge = exports.isEqualIgnoreCase = exports.deleteImageS3 = exports.generatePassword = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
 const dotenv_1 = __importDefault(require("dotenv"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = require("fs");
 dotenv_1.default.config();
 const s3 = new client_s3_1.S3Client({ region: process.env.AWS_REGION });
 const generatePassword = () => {
@@ -104,3 +106,30 @@ const checkUserGujratState = (userData, productData) => {
 exports.checkUserGujratState = checkUserGujratState;
 exports.RAZOR_PAY_KEY_ID = 'rzp_live_g5FHxyE0FQivlu';
 exports.RAZOR_PAY_KEY_SECRET = 'C14bmIZD7SMjU4cZ0GjrID7g';
+const deleteVpsUpload = (fileUrl) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!fileUrl)
+            return false;
+        const allowedBase = "https://vrfashionjewelleary.in/uploads/";
+        if (!fileUrl.startsWith(allowedBase))
+            return false;
+        let folder;
+        if (fileUrl.includes("/uploads/images/"))
+            folder = "images";
+        else if (fileUrl.includes("/uploads/videos/"))
+            folder = "videos";
+        else
+            return false;
+        const fileName = path_1.default.basename(fileUrl);
+        const filePath = path_1.default.join(process.cwd(), "uploads", folder, fileName);
+        yield fs_1.promises.unlink(filePath);
+        return true;
+    }
+    catch (error) {
+        if (error.code === "ENOENT")
+            return false; // file not found
+        console.error("Delete error:", error);
+        return false;
+    }
+});
+exports.deleteVpsUpload = deleteVpsUpload;

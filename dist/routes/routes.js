@@ -100,13 +100,24 @@ const storage = multer_1.default.diskStorage({
 });
 // File filter
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image") ||
-        file.mimetype.startsWith("video")) {
-        cb(null, true);
+    // IMAGE field → only images
+    if (file.fieldname === "image" &&
+        file.mimetype.startsWith("image/")) {
+        return cb(null, true);
     }
-    else {
-        cb(null, false);
+    // VIDEO field → only videos
+    if (file.fieldname === "video" &&
+        file.mimetype.startsWith("video/")) {
+        return cb(null, true);
     }
+    // FILE field → image OR video
+    if (file.fieldname === "file" &&
+        (file.mimetype.startsWith("image/") ||
+            file.mimetype.startsWith("video/"))) {
+        return cb(null, true);
+    }
+    // Reject everything else
+    cb(new Error("Invalid file field or file type"));
 };
 // Multer instance
 const vpsUpload = (0, multer_1.default)({
@@ -147,10 +158,10 @@ router.put('/user/status', (0, bodyValidate_middleware_1.validateBody)(user_vali
     (0, user_controller_1.updateUserStatus)(req, res).catch(next);
 });
 // Banner
-router.post('/banner', upload.single('image'), (0, bodyValidate_middleware_1.validateBody)(banner_validate_1.addBannerValidation), (req, res, next) => {
+router.post('/banner', vpsUpload.single('image'), (0, bodyValidate_middleware_1.validateBody)(banner_validate_1.addBannerValidation), (req, res, next) => {
     (0, banner_controller_1.addBanner)(req, res).catch(next);
 });
-router.put('/banner', upload.single('image'), (0, bodyValidate_middleware_1.validateBody)(banner_validate_1.updateBannerValidation), (req, res, next) => {
+router.put('/banner', vpsUpload.single('image'), (0, bodyValidate_middleware_1.validateBody)(banner_validate_1.updateBannerValidation), (req, res, next) => {
     (0, banner_controller_1.updateBanner)(req, res).catch(next);
 });
 router.get('/banner', (req, res, next) => {

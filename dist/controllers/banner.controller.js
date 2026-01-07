@@ -25,7 +25,7 @@ const addBanner = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({ error: 'Image file is missing.' });
         return;
     }
-    const bannerUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const bannerUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
     try {
         const bannerData = {
             name: (_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.name,
@@ -52,8 +52,8 @@ const updateBanner = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         let imagePath = (_b = (_a = bannerData[0]) === null || _a === void 0 ? void 0 : _a.imagePath) !== null && _b !== void 0 ? _b : '';
         if (file) {
-            const bannerUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
-            yield (0, global_1.deleteImageS3)(imagePath);
+            const bannerUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
+            yield (0, global_1.deleteVpsUpload)(imagePath);
             imagePath = bannerUrl;
         }
         yield (0, banner_service_1.updateBannerData)(Object.assign(Object.assign({}, bodyData), { imagePath }));
@@ -88,7 +88,7 @@ const deleteBanner = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const imagePath = (_a = bannerData[0]) === null || _a === void 0 ? void 0 : _a.imagePath;
         // Delete Image if it exists
         if (imagePath) {
-            yield (0, global_1.deleteImageS3)(imagePath);
+            yield (0, global_1.deleteVpsUpload)(imagePath);
         }
         // Delete Banner Data from Database
         yield (0, banner_service_1.deleteBannerData)(bannerId);
