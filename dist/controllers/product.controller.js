@@ -387,13 +387,13 @@ const deleteProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             for (const image of (_b = productData[0]) === null || _b === void 0 ? void 0 : _b.image) {
                 const imagePath = (_c = image === null || image === void 0 ? void 0 : image.path) !== null && _c !== void 0 ? _c : '';
                 if (imagePath) {
-                    yield (0, global_1.deleteImageS3)(imagePath);
+                    yield (0, global_1.deleteVpsUpload)(imagePath);
                 }
             }
         }
         const videoPath = (_e = (_d = productData[0]) === null || _d === void 0 ? void 0 : _d.videoPath) !== null && _e !== void 0 ? _e : ''; // Ensure it's a string
         if (videoPath) {
-            yield (0, global_1.deleteImageS3)(videoPath);
+            yield (0, global_1.deleteVpsUpload)(videoPath);
         }
         yield (0, product_service_1.deleteProductData)(productId);
         //Product remove from wishlist if available in wishlist.
