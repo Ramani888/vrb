@@ -171,10 +171,10 @@ router.delete('/banner', (0, bodyValidate_middleware_1.validateBody)(banner_vali
     (0, banner_controller_1.deleteBanner)(req, res).catch(next);
 });
 // Ads Poster
-router.post('/ads/poster', upload.single('image'), (req, res, next) => {
+router.post('/ads/poster', vpsUpload.single('image'), (req, res, next) => {
     (0, adsPoster_controller_1.addAdsPoster)(req, res).catch(next);
 });
-router.put('/ads/poster', upload.single('image'), (0, bodyValidate_middleware_1.validateBody)(adsPoster_validate_1.updateAdsPosterValidation), (req, res, next) => {
+router.put('/ads/poster', vpsUpload.single('image'), (0, bodyValidate_middleware_1.validateBody)(adsPoster_validate_1.updateAdsPosterValidation), (req, res, next) => {
     (0, adsPoster_controller_1.updateAdsPoster)(req, res).catch(next);
 });
 router.get('/ads/poster', (req, res, next) => {

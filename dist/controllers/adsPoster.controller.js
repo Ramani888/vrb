@@ -24,7 +24,7 @@ const addAdsPoster = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({ error: 'Image file is missing.' });
         return;
     }
-    const posterUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const posterUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
     try {
         const data = {
             imagePath: posterUrl
@@ -49,11 +49,11 @@ const updateAdsPoster = (req, res) => __awaiter(void 0, void 0, void 0, function
             return;
         }
         if (file) {
-            const posterUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+            const posterUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
             // Delete Image (if exists)
             const imagePath = (_b = (_a = adsPosterData[0]) === null || _a === void 0 ? void 0 : _a.imagePath) !== null && _b !== void 0 ? _b : ''; // Ensure it's a string
             if (imagePath) {
-                yield (0, global_1.deleteImageS3)(imagePath);
+                yield (0, global_1.deleteVpsUpload)(imagePath);
             }
             // Insert Data
             const dataObject = {
@@ -96,7 +96,7 @@ const deleteAdsPoster = (req, res) => __awaiter(void 0, void 0, void 0, function
         // Ensure imagePath is a valid string before deleting
         const imagePath = (_b = (_a = adsPosterData[0]) === null || _a === void 0 ? void 0 : _a.imagePath) !== null && _b !== void 0 ? _b : '';
         if (imagePath) {
-            yield (0, global_1.deleteImageS3)(imagePath);
+            yield (0, global_1.deleteVpsUpload)(imagePath);
         }
         // Delete ad poster data
         yield (0, adsPoster_service_1.deleteAdsPosterData)(adsPosterId);
