@@ -2,6 +2,9 @@ import { S3Client, HeadObjectCommand, DeleteObjectCommand } from "@aws-sdk/clien
 import dotenv from "dotenv";
 import { IUsers } from "../../types/user";
 import { IProduct } from "../../types/product";
+import path from "path";
+import fs from 'fs';
+import { promises as fsPromises } from 'fs';
 dotenv.config();
 const s3 = new S3Client({ region: process.env.AWS_REGION });
 
@@ -92,3 +95,28 @@ export const checkUserGujratState = (userData: IUsers, productData: IProduct) =>
 
 export const RAZOR_PAY_KEY_ID = 'rzp_live_g5FHxyE0FQivlu';
 export const RAZOR_PAY_KEY_SECRET = 'C14bmIZD7SMjU4cZ0GjrID7g';
+
+export const deleteVpsUpload = async (fileUrl: string): Promise<boolean> => {
+  try {
+    if (!fileUrl) return false;
+
+    const allowedBase = "https://vrfashionjewelleary.in/uploads/";
+    if (!fileUrl.startsWith(allowedBase)) return false;
+
+    let folder: "images" | "videos";
+    if (fileUrl.includes("/uploads/images/")) folder = "images";
+    else if (fileUrl.includes("/uploads/videos/")) folder = "videos";
+    else return false;
+
+    const fileName = path.basename(fileUrl);
+    const filePath = path.join(process.cwd(), "uploads", folder, fileName);
+
+    await fsPromises.unlink(filePath);
+    return true;
+
+  } catch (error: any) {
+    if (error.code === "ENOENT") return false; // file not found
+    console.error("Delete error:", error);
+    return false;
+  }
+};

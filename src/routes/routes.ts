@@ -91,15 +91,41 @@ const storage = multer.diskStorage({
 });
 
 // File filter
-const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (
+  req: express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+
+  // IMAGE field → only images
   if (
-	file.mimetype.startsWith("image") ||
-	file.mimetype.startsWith("video")
+    file.fieldname === "image" &&
+    file.mimetype.startsWith("image/")
   ) {
-	cb(null, true);
-  } else {
-	cb(null, false);
+    return cb(null, true);
   }
+
+  // VIDEO field → only videos
+  if (
+    file.fieldname === "video" &&
+    file.mimetype.startsWith("video/")
+  ) {
+    return cb(null, true);
+  }
+
+  // FILE field → image OR video
+  if (
+    file.fieldname === "file" &&
+    (
+      file.mimetype.startsWith("image/") ||
+      file.mimetype.startsWith("video/")
+    )
+  ) {
+    return cb(null, true);
+  }
+
+  // Reject everything else
+  cb(new Error("Invalid file field or file type"));
 };
 
 // Multer instance
@@ -155,11 +181,11 @@ router.put('/user/status', validateBody(updateUserStatusValidation), (req, res, 
 
 
 // Banner
-router.post('/banner', upload.single('image'), validateBody(addBannerValidation),  (req, res, next) => {
+router.post('/banner', vpsUpload.single('image'), validateBody(addBannerValidation),  (req, res, next) => {
 	addBanner(req, res).catch(next);
 })
 
-router.put('/banner', upload.single('image'), validateBody(updateBannerValidation), (req, res, next) => {
+router.put('/banner', vpsUpload.single('image'), validateBody(updateBannerValidation), (req, res, next) => {
 	updateBanner(req, res).catch(next);
 })
 

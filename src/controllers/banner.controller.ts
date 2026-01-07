@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import dotenv from "dotenv"
 import { addBannerData, deleteBannerData, getAllBannerData, getBannerDataById, updateBannerData } from "../services/banner.service";
-import { deleteImageS3 } from "../utils/helpers/global";
+import { deleteImageS3, deleteVpsUpload } from "../utils/helpers/global";
 dotenv.config();
 
 export const addBanner = async (req: AuthorizedRequest, res: Response) => {
@@ -14,7 +14,7 @@ export const addBanner = async (req: AuthorizedRequest, res: Response) => {
         return;
     }
 
-    const bannerUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const bannerUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
     try {
         const bannerData = {
@@ -45,9 +45,9 @@ export const updateBanner = async (req: AuthorizedRequest, res: Response) => {
         let imagePath = bannerData[0]?.imagePath ?? '';
 
         if (file) {
-            const bannerUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+            const bannerUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
-            await deleteImageS3(imagePath);
+            await deleteVpsUpload(imagePath);
 
             imagePath = bannerUrl;
         }
@@ -85,7 +85,7 @@ export const deleteBanner = async (req: AuthorizedRequest, res: Response) => {
 
         // Delete Image if it exists
         if (imagePath) {
-            await deleteImageS3(imagePath);
+            await deleteVpsUpload(imagePath);
         }
 
         // Delete Banner Data from Database
