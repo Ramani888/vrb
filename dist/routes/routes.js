@@ -200,10 +200,16 @@ router.delete('/category', (0, bodyValidate_middleware_1.validateBody)(category_
     (0, category_controller_1.deleteCategory)(req, res).catch(next);
 });
 // Product
-router.post('/product', (0, bodyValidate_middleware_1.validateBody)(product_validates_1.addProductValidation), (req, res, next) => {
+router.post('/product', vpsUpload.fields([
+    { name: 'image', maxCount: 4 },
+    { name: 'video', maxCount: 1 }
+]), (0, bodyValidate_middleware_1.validateBody)(product_validates_1.addProductValidation), (req, res, next) => {
     (0, product_controller_1.addProduct)(req, res).catch(next);
 });
-router.put('/product', (0, bodyValidate_middleware_1.validateBody)(product_validates_1.updateProductValidation), (req, res, next) => {
+router.put('/product', vpsUpload.fields([
+    { name: 'image', maxCount: 4 },
+    { name: 'video', maxCount: 1 }
+]), (0, bodyValidate_middleware_1.validateBody)(product_validates_1.updateProductValidation), (req, res, next) => {
     (0, product_controller_1.updateProduct)(req, res).catch(next);
 });
 router.get('/product', (0, bodyValidate_middleware_1.validateBody)(product_validates_1.getAllProductValidation, RouteSource === null || RouteSource === void 0 ? void 0 : RouteSource.Query), (req, res, next) => {

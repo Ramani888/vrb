@@ -6,70 +6,232 @@ import { getCategoryDataById } from "../services/category.service";
 import { DeviceToken } from "../models/deviceToken.model";
 import { insertNotificationData } from "../services/notification.service";
 import { sendBulkPushNotification } from "./notification.controller";
-import { checkUserGujratState, checkUserLocationAndGetDeliveryCharge, deleteImageS3 } from "../utils/helpers/global";
+import { checkUserGujratState, checkUserLocationAndGetDeliveryCharge, deleteImageS3, deleteVpsUpload } from "../utils/helpers/global";
 import { getUserDataById } from "../services/user.service";
 import { removeWishlistData, removeWishlistDataAllUser } from "../services/wishlist.service";
 import { removeToCartDataAllUser } from "../services/cart.service";
 
 export const addProduct = async (req: AuthorizedRequest, res: Response) => {
-    const bodyData = req.body;
     try {
-        const productId = await addProductData(bodyData);
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const bodyData = req.body;
 
-        const categoryData = await getCategoryDataById(bodyData?.categoryId)
+        // Validate minimum 2 images
+        if (!files?.image || files.image.length < 2) {
+            return res.status(StatusCodes.BAD_REQUEST).send({ 
+                success: false, 
+                message: "Please select minimum two images." 
+            });
+        }
+
+        // Prepare image data with VPS paths
+        const imageData = files.image.map((file) => ({
+            path: `${process.env.APP_URL}/uploads/images/${file.filename}`
+        }));
+
+        // Prepare video data
+        const videoPath = files?.video && files.video.length > 0 
+            ? `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}` 
+            : undefined;
+
+        // Prepare product data
+        const productData: any = {
+            categoryId: bodyData.categoryId,
+            name: bodyData.name,
+            code: bodyData.code,
+            price: Number(bodyData.price),
+            mrp: Number(bodyData.mrp),
+            qty: Number(bodyData.qty),
+            gst: bodyData.gst,
+            inSuratCityCharge: Number(bodyData.inSuratCityCharge),
+            inGujratStateCharge: Number(bodyData.inGujratStateCharge),
+            inOutStateCharge: Number(bodyData.inOutStateCharge),
+            image: imageData,
+            videoPath: videoPath,
+            isPause: bodyData.isPause === 'true' || bodyData.isPause === true ? true : false,
+        };
+
+        // Add optional fields if provided
+        if (bodyData.productBaseMetalId) productData.productBaseMetalId = bodyData.productBaseMetalId;
+        if (bodyData.productPlatingId) productData.productPlatingId = bodyData.productPlatingId;
+        if (bodyData.productStoneTypeId) productData.productStoneTypeId = bodyData.productStoneTypeId;
+        if (bodyData.productTrendId) productData.productTrendId = bodyData.productTrendId;
+        if (bodyData.productBrandId) productData.productBrandId = bodyData.productBrandId;
+        if (bodyData.productColorId) productData.productColorId = bodyData.productColorId;
+        if (bodyData.productOccasionId) productData.productOccasionId = bodyData.productOccasionId;
+        if (bodyData.productTypeId) productData.productTypeId = bodyData.productTypeId;
+        if (bodyData.size) productData.size = bodyData.size;
+        if (bodyData.weight) productData.weight = Number(bodyData.weight);
+        if (bodyData.description) productData.description = bodyData.description;
+        if (bodyData.discount) productData.discount = Number(bodyData.discount);
+        if (bodyData.reward) productData.reward = Number(bodyData.reward);
+        
+        productData.isPramotion = bodyData.isPramotion === 'true' || bodyData.isPramotion === true ? true : false;
+
+        const productId = await addProductData(productData);
+
+        // Send notification to all users
+        const categoryData = await getCategoryDataById(bodyData.categoryId);
         const tokens = await DeviceToken.find();
 
         const tokenData = tokens?.map((data) => data?.token);
-
         const userIds = tokens?.map((data) => data?.userId);
 
-        userIds?.map(async (userId) => {
+        userIds?.forEach(async (userId) => {
             const notificationData = {
                 title: categoryData[0]?.name,
-                subTitle: bodyData?.name,
-                imageUrl: bodyData?.image[0]?.path,
+                subTitle: bodyData.name,
+                imageUrl: imageData[0]?.path,
                 userId: userId,
                 productId: productId,
-                productName: bodyData?.name
-            }
+                productName: bodyData.name
+            };
             await insertNotificationData(notificationData);
-        })
+        });
 
         const pushNotificationData = {
             title: categoryData[0]?.name,
-            body: bodyData?.name,
-        }
+            body: bodyData.name,
+        };
 
         await sendBulkPushNotification(tokenData, pushNotificationData);
-        res.status(StatusCodes.OK).send({ success: true, message: "Product data inserted." });
+        
+        res.status(StatusCodes.OK).send({ 
+            success: true, 
+            message: "Product added successfully.",
+            productId: productId 
+        });
     } catch (err) {
         console.log(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ 
+            success: false,
+            message: "Failed to add product.",
+            error: err 
+        });
     }
 }
 
 export const updateProduct = async (req: AuthorizedRequest, res: Response) => {
-    const bodyData = req.body;
     try {
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const bodyData = req.body;
 
-        if (bodyData?.deleteImages) {
-            for (const deleteImageData of bodyData?.deleteImages) {
+        if (!bodyData._id) {
+            return res.status(StatusCodes.BAD_REQUEST).send({ 
+                success: false, 
+                message: "Product ID is required." 
+            });
+        }
+
+        // Parse existing images if provided
+        let existingImages: Array<{ _id?: string, path: string }> = [];
+        if (bodyData.existingImages) {
+            try {
+                existingImages = JSON.parse(bodyData.existingImages);
+            } catch (e) {
+                console.error("Error parsing existingImages:", e);
+            }
+        }
+
+        // Parse deleted images if provided
+        let deleteImages: Array<{ _id?: string, path: string }> = [];
+        if (bodyData.deleteImages) {
+            try {
+                deleteImages = JSON.parse(bodyData.deleteImages);
+            } catch (e) {
+                console.error("Error parsing deleteImages:", e);
+            }
+        }
+
+        // Delete images from VPS if specified
+        if (deleteImages && deleteImages.length > 0) {
+            for (const deleteImageData of deleteImages) {
                 if (deleteImageData?.path) {
-                    await deleteImageS3(deleteImageData?.path);
+                    await deleteVpsUpload(deleteImageData.path);
                 }
             }
         }
 
-        if (bodyData?.deleteVideo?.length > 0) {
-            await deleteImageS3(bodyData?.deleteVideo);
+        // Handle video deletion
+        if (bodyData.deleteVideo) {
+            await deleteVpsUpload(bodyData.deleteVideo);
         }
 
-        await updateProductData({...bodyData})
-        res.status(StatusCodes.OK).send({ success: true, message: "Product data updated." });
+        // Prepare new images with VPS paths
+        const newImages = files?.image ? files.image.map((file) => ({
+            path: `${process.env.APP_URL}/uploads/images/${file.filename}`
+        })) : [];
+
+        // Combine existing and new images
+        const allImages = [...existingImages, ...newImages];
+
+        // Validate minimum 2 images
+        if (allImages.length < 2) {
+            return res.status(StatusCodes.BAD_REQUEST).send({ 
+                success: false, 
+                message: "Please select minimum two images." 
+            });
+        }
+
+        // Prepare video path
+        let videoPath = bodyData.existingVideo || undefined;
+        if (files?.video && files.video.length > 0) {
+            videoPath = `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}`;
+        } else if (bodyData.deleteVideo) {
+            videoPath = undefined;
+        }
+
+        // Prepare update data
+        const updateData: any = {
+            _id: bodyData._id,
+            image: allImages,
+        };
+
+        if (videoPath) updateData.videoPath = videoPath;
+        
+        // Update fields if provided
+        if (bodyData.categoryId) updateData.categoryId = bodyData.categoryId;
+        if (bodyData.name) updateData.name = bodyData.name;
+        if (bodyData.code) updateData.code = bodyData.code;
+        if (bodyData.price) updateData.price = Number(bodyData.price);
+        if (bodyData.mrp) updateData.mrp = Number(bodyData.mrp);
+        if (bodyData.qty) updateData.qty = Number(bodyData.qty);
+        if (bodyData.gst) updateData.gst = bodyData.gst;
+        if (bodyData.inSuratCityCharge !== undefined) updateData.inSuratCityCharge = Number(bodyData.inSuratCityCharge);
+        if (bodyData.inGujratStateCharge !== undefined) updateData.inGujratStateCharge = Number(bodyData.inGujratStateCharge);
+        if (bodyData.inOutStateCharge !== undefined) updateData.inOutStateCharge = Number(bodyData.inOutStateCharge);
+        
+        // Update optional fields
+        if (bodyData.productBaseMetalId !== undefined) updateData.productBaseMetalId = bodyData.productBaseMetalId;
+        if (bodyData.productPlatingId !== undefined) updateData.productPlatingId = bodyData.productPlatingId;
+        if (bodyData.productStoneTypeId !== undefined) updateData.productStoneTypeId = bodyData.productStoneTypeId;
+        if (bodyData.productTrendId !== undefined) updateData.productTrendId = bodyData.productTrendId;
+        if (bodyData.productBrandId !== undefined) updateData.productBrandId = bodyData.productBrandId;
+        if (bodyData.productColorId !== undefined) updateData.productColorId = bodyData.productColorId;
+        if (bodyData.productOccasionId !== undefined) updateData.productOccasionId = bodyData.productOccasionId;
+        if (bodyData.productTypeId !== undefined) updateData.productTypeId = bodyData.productTypeId;
+        if (bodyData.size !== undefined) updateData.size = bodyData.size;
+        if (bodyData.weight !== undefined) updateData.weight = Number(bodyData.weight);
+        if (bodyData.description !== undefined) updateData.description = bodyData.description;
+        if (bodyData.discount !== undefined) updateData.discount = Number(bodyData.discount);
+        if (bodyData.reward !== undefined) updateData.reward = Number(bodyData.reward);
+        if (bodyData.isPramotion !== undefined) updateData.isPramotion = bodyData.isPramotion === 'true' || bodyData.isPramotion === true ? true : false;
+        if (bodyData.isPause !== undefined) updateData.isPause = bodyData.isPause === 'true' || bodyData.isPause === true ? true : false;
+
+        await updateProductData(updateData);
+        
+        res.status(StatusCodes.OK).send({ 
+            success: true, 
+            message: "Product updated successfully." 
+        });
 
     } catch (err) {
         console.log(err);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ 
+            success: false,
+            message: "Failed to update product.",
+            error: err 
+        });
     }
 }
 
@@ -242,14 +404,14 @@ export const deleteProduct = async (req: AuthorizedRequest, res: Response) => {
             for (const image of productData[0]?.image) {
                 const imagePath = image?.path ?? '';
                 if (imagePath) {
-                    await deleteImageS3(imagePath);
+                    await deleteVpsUpload(imagePath);
                 }
             }
         }
 
         const videoPath = productData[0]?.videoPath ?? ''; // Ensure it's a string
         if (videoPath) {
-            await deleteImageS3(videoPath);
+            await deleteVpsUpload(videoPath);
         }
 
         await deleteProductData(productId);

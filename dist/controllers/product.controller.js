@@ -33,58 +33,242 @@ const wishlist_service_1 = require("../services/wishlist.service");
 const cart_service_1 = require("../services/cart.service");
 const addProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const bodyData = req.body;
     try {
-        const productId = yield (0, product_service_1.addProductData)(bodyData);
-        const categoryData = yield (0, category_service_1.getCategoryDataById)(bodyData === null || bodyData === void 0 ? void 0 : bodyData.categoryId);
+        const files = req.files;
+        const bodyData = req.body;
+        // Validate minimum 2 images
+        if (!(files === null || files === void 0 ? void 0 : files.image) || files.image.length < 2) {
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({
+                success: false,
+                message: "Please select minimum two images."
+            });
+        }
+        // Prepare image data with VPS paths
+        const imageData = files.image.map((file) => ({
+            path: `${process.env.APP_URL}/uploads/images/${file.filename}`
+        }));
+        // Prepare video data
+        const videoPath = (files === null || files === void 0 ? void 0 : files.video) && files.video.length > 0
+            ? `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}`
+            : undefined;
+        // Prepare product data
+        const productData = {
+            categoryId: bodyData.categoryId,
+            name: bodyData.name,
+            code: bodyData.code,
+            price: Number(bodyData.price),
+            mrp: Number(bodyData.mrp),
+            qty: Number(bodyData.qty),
+            gst: bodyData.gst,
+            inSuratCityCharge: Number(bodyData.inSuratCityCharge),
+            inGujratStateCharge: Number(bodyData.inGujratStateCharge),
+            inOutStateCharge: Number(bodyData.inOutStateCharge),
+            image: imageData,
+            videoPath: videoPath,
+            isPause: bodyData.isPause === 'true' || bodyData.isPause === true ? true : false,
+        };
+        // Add optional fields if provided
+        if (bodyData.productBaseMetalId)
+            productData.productBaseMetalId = bodyData.productBaseMetalId;
+        if (bodyData.productPlatingId)
+            productData.productPlatingId = bodyData.productPlatingId;
+        if (bodyData.productStoneTypeId)
+            productData.productStoneTypeId = bodyData.productStoneTypeId;
+        if (bodyData.productTrendId)
+            productData.productTrendId = bodyData.productTrendId;
+        if (bodyData.productBrandId)
+            productData.productBrandId = bodyData.productBrandId;
+        if (bodyData.productColorId)
+            productData.productColorId = bodyData.productColorId;
+        if (bodyData.productOccasionId)
+            productData.productOccasionId = bodyData.productOccasionId;
+        if (bodyData.productTypeId)
+            productData.productTypeId = bodyData.productTypeId;
+        if (bodyData.size)
+            productData.size = bodyData.size;
+        if (bodyData.weight)
+            productData.weight = Number(bodyData.weight);
+        if (bodyData.description)
+            productData.description = bodyData.description;
+        if (bodyData.discount)
+            productData.discount = Number(bodyData.discount);
+        if (bodyData.reward)
+            productData.reward = Number(bodyData.reward);
+        productData.isPramotion = bodyData.isPramotion === 'true' || bodyData.isPramotion === true ? true : false;
+        const productId = yield (0, product_service_1.addProductData)(productData);
+        // Send notification to all users
+        const categoryData = yield (0, category_service_1.getCategoryDataById)(bodyData.categoryId);
         const tokens = yield deviceToken_model_1.DeviceToken.find();
         const tokenData = tokens === null || tokens === void 0 ? void 0 : tokens.map((data) => data === null || data === void 0 ? void 0 : data.token);
         const userIds = tokens === null || tokens === void 0 ? void 0 : tokens.map((data) => data === null || data === void 0 ? void 0 : data.userId);
-        userIds === null || userIds === void 0 ? void 0 : userIds.map((userId) => __awaiter(void 0, void 0, void 0, function* () {
+        userIds === null || userIds === void 0 ? void 0 : userIds.forEach((userId) => __awaiter(void 0, void 0, void 0, function* () {
             var _a, _b;
             const notificationData = {
                 title: (_a = categoryData[0]) === null || _a === void 0 ? void 0 : _a.name,
-                subTitle: bodyData === null || bodyData === void 0 ? void 0 : bodyData.name,
-                imageUrl: (_b = bodyData === null || bodyData === void 0 ? void 0 : bodyData.image[0]) === null || _b === void 0 ? void 0 : _b.path,
+                subTitle: bodyData.name,
+                imageUrl: (_b = imageData[0]) === null || _b === void 0 ? void 0 : _b.path,
                 userId: userId,
                 productId: productId,
-                productName: bodyData === null || bodyData === void 0 ? void 0 : bodyData.name
+                productName: bodyData.name
             };
             yield (0, notification_service_1.insertNotificationData)(notificationData);
         }));
         const pushNotificationData = {
             title: (_a = categoryData[0]) === null || _a === void 0 ? void 0 : _a.name,
-            body: bodyData === null || bodyData === void 0 ? void 0 : bodyData.name,
+            body: bodyData.name,
         };
         yield (0, notification_controller_1.sendBulkPushNotification)(tokenData, pushNotificationData);
-        res.status(http_status_codes_1.StatusCodes.OK).send({ success: true, message: "Product data inserted." });
+        res.status(http_status_codes_1.StatusCodes.OK).send({
+            success: true,
+            message: "Product added successfully.",
+            productId: productId
+        });
     }
     catch (err) {
         console.log(err);
-        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
+            success: false,
+            message: "Failed to add product.",
+            error: err
+        });
     }
 });
 exports.addProduct = addProduct;
 const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const bodyData = req.body;
     try {
-        if (bodyData === null || bodyData === void 0 ? void 0 : bodyData.deleteImages) {
-            for (const deleteImageData of bodyData === null || bodyData === void 0 ? void 0 : bodyData.deleteImages) {
+        const files = req.files;
+        const bodyData = req.body;
+        if (!bodyData._id) {
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({
+                success: false,
+                message: "Product ID is required."
+            });
+        }
+        // Parse existing images if provided
+        let existingImages = [];
+        if (bodyData.existingImages) {
+            try {
+                existingImages = JSON.parse(bodyData.existingImages);
+            }
+            catch (e) {
+                console.error("Error parsing existingImages:", e);
+            }
+        }
+        // Parse deleted images if provided
+        let deleteImages = [];
+        if (bodyData.deleteImages) {
+            try {
+                deleteImages = JSON.parse(bodyData.deleteImages);
+            }
+            catch (e) {
+                console.error("Error parsing deleteImages:", e);
+            }
+        }
+        // Delete images from VPS if specified
+        if (deleteImages && deleteImages.length > 0) {
+            for (const deleteImageData of deleteImages) {
                 if (deleteImageData === null || deleteImageData === void 0 ? void 0 : deleteImageData.path) {
-                    yield (0, global_1.deleteImageS3)(deleteImageData === null || deleteImageData === void 0 ? void 0 : deleteImageData.path);
+                    yield (0, global_1.deleteVpsUpload)(deleteImageData.path);
                 }
             }
         }
-        if (((_a = bodyData === null || bodyData === void 0 ? void 0 : bodyData.deleteVideo) === null || _a === void 0 ? void 0 : _a.length) > 0) {
-            yield (0, global_1.deleteImageS3)(bodyData === null || bodyData === void 0 ? void 0 : bodyData.deleteVideo);
+        // Handle video deletion
+        if (bodyData.deleteVideo) {
+            yield (0, global_1.deleteVpsUpload)(bodyData.deleteVideo);
         }
-        yield (0, product_service_1.updateProductData)(Object.assign({}, bodyData));
-        res.status(http_status_codes_1.StatusCodes.OK).send({ success: true, message: "Product data updated." });
+        // Prepare new images with VPS paths
+        const newImages = (files === null || files === void 0 ? void 0 : files.image) ? files.image.map((file) => ({
+            path: `${process.env.APP_URL}/uploads/images/${file.filename}`
+        })) : [];
+        // Combine existing and new images
+        const allImages = [...existingImages, ...newImages];
+        // Validate minimum 2 images
+        if (allImages.length < 2) {
+            return res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({
+                success: false,
+                message: "Please select minimum two images."
+            });
+        }
+        // Prepare video path
+        let videoPath = bodyData.existingVideo || undefined;
+        if ((files === null || files === void 0 ? void 0 : files.video) && files.video.length > 0) {
+            videoPath = `${process.env.APP_URL}/uploads/videos/${files.video[0].filename}`;
+        }
+        else if (bodyData.deleteVideo) {
+            videoPath = undefined;
+        }
+        // Prepare update data
+        const updateData = {
+            _id: bodyData._id,
+            image: allImages,
+        };
+        if (videoPath)
+            updateData.videoPath = videoPath;
+        // Update fields if provided
+        if (bodyData.categoryId)
+            updateData.categoryId = bodyData.categoryId;
+        if (bodyData.name)
+            updateData.name = bodyData.name;
+        if (bodyData.code)
+            updateData.code = bodyData.code;
+        if (bodyData.price)
+            updateData.price = Number(bodyData.price);
+        if (bodyData.mrp)
+            updateData.mrp = Number(bodyData.mrp);
+        if (bodyData.qty)
+            updateData.qty = Number(bodyData.qty);
+        if (bodyData.gst)
+            updateData.gst = bodyData.gst;
+        if (bodyData.inSuratCityCharge !== undefined)
+            updateData.inSuratCityCharge = Number(bodyData.inSuratCityCharge);
+        if (bodyData.inGujratStateCharge !== undefined)
+            updateData.inGujratStateCharge = Number(bodyData.inGujratStateCharge);
+        if (bodyData.inOutStateCharge !== undefined)
+            updateData.inOutStateCharge = Number(bodyData.inOutStateCharge);
+        // Update optional fields
+        if (bodyData.productBaseMetalId !== undefined)
+            updateData.productBaseMetalId = bodyData.productBaseMetalId;
+        if (bodyData.productPlatingId !== undefined)
+            updateData.productPlatingId = bodyData.productPlatingId;
+        if (bodyData.productStoneTypeId !== undefined)
+            updateData.productStoneTypeId = bodyData.productStoneTypeId;
+        if (bodyData.productTrendId !== undefined)
+            updateData.productTrendId = bodyData.productTrendId;
+        if (bodyData.productBrandId !== undefined)
+            updateData.productBrandId = bodyData.productBrandId;
+        if (bodyData.productColorId !== undefined)
+            updateData.productColorId = bodyData.productColorId;
+        if (bodyData.productOccasionId !== undefined)
+            updateData.productOccasionId = bodyData.productOccasionId;
+        if (bodyData.productTypeId !== undefined)
+            updateData.productTypeId = bodyData.productTypeId;
+        if (bodyData.size !== undefined)
+            updateData.size = bodyData.size;
+        if (bodyData.weight !== undefined)
+            updateData.weight = Number(bodyData.weight);
+        if (bodyData.description !== undefined)
+            updateData.description = bodyData.description;
+        if (bodyData.discount !== undefined)
+            updateData.discount = Number(bodyData.discount);
+        if (bodyData.reward !== undefined)
+            updateData.reward = Number(bodyData.reward);
+        if (bodyData.isPramotion !== undefined)
+            updateData.isPramotion = bodyData.isPramotion === 'true' || bodyData.isPramotion === true ? true : false;
+        if (bodyData.isPause !== undefined)
+            updateData.isPause = bodyData.isPause === 'true' || bodyData.isPause === true ? true : false;
+        yield (0, product_service_1.updateProductData)(updateData);
+        res.status(http_status_codes_1.StatusCodes.OK).send({
+            success: true,
+            message: "Product updated successfully."
+        });
     }
     catch (err) {
         console.log(err);
-        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({ err });
+        res.status(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR).send({
+            success: false,
+            message: "Failed to update product.",
+            error: err
+        });
     }
 });
 exports.updateProduct = updateProduct;

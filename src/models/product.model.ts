@@ -4,15 +4,11 @@ const env = process.env;
 
 // Define a schema for each image object within imagePath array
 const ImageSchema = new Schema({
-    _id: {
-        type: String,
-        required: true
-    },
     path: {
         type: String,
         required: true
     }
-});
+}, { _id: true });
 
 const ProductSchema = new Schema({
     categoryId: {
@@ -21,19 +17,19 @@ const ProductSchema = new Schema({
     },
     productBaseMetalId: {
         type: String,
-        required: true
+        required: false
     },
     productPlatingId: {
         type: String,
-        required: true
+        required: false
     },
     productStoneTypeId: {
         type: String,
-        required: true
+        required: false
     },
     productTrendId: {
         type: String,
-        required: true
+        required: false
     },
     productBrandId: String,
     productColorId: String,

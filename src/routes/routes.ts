@@ -238,11 +238,17 @@ router.delete('/category', validateBody(deleteCategoryValidation, RouteSource?.Q
 
 
 // Product
-router.post('/product', validateBody(addProductValidation), (req, res, next) => {
+router.post('/product', vpsUpload.fields([
+	{ name: 'image', maxCount: 4 },
+	{ name: 'video', maxCount: 1 }
+]), (req, res, next) => {
 	addProduct(req, res).catch(next);
 });
 
-router.put('/product', validateBody(updateProductValidation), (req, res, next) => {
+router.put('/product', vpsUpload.fields([
+	{ name: 'image', maxCount: 4 },
+	{ name: 'video', maxCount: 1 }
+]), (req, res, next) => {
 	updateProduct(req, res).catch(next);
 });
 
