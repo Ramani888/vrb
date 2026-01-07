@@ -185,9 +185,8 @@ export const updateProduct = async (req: AuthorizedRequest, res: Response) => {
         const updateData: any = {
             _id: bodyData._id,
             image: allImages,
+            videoPath: videoPath
         };
-
-        if (videoPath) updateData.videoPath = videoPath;
         
         // Update fields if provided
         if (bodyData.categoryId) updateData.categoryId = bodyData.categoryId;

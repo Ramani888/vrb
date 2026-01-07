@@ -201,9 +201,8 @@ const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const updateData = {
             _id: bodyData._id,
             image: allImages,
+            videoPath: videoPath
         };
-        if (videoPath)
-            updateData.videoPath = videoPath;
         // Update fields if provided
         if (bodyData.categoryId)
             updateData.categoryId = bodyData.categoryId;
