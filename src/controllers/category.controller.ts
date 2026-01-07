@@ -2,7 +2,7 @@ import { AuthorizedRequest } from "../types/user";
 import { StatusCodes } from "http-status-codes";
 import { Response } from 'express';
 import dotenv from "dotenv"
-import { deleteImageS3 } from "../utils/helpers/global";
+import { deleteImageS3, deleteVpsUpload } from "../utils/helpers/global";
 import { addCategoryData, deleteCategoryData, getAllCategoryData, getCategoryDataById, updateCategoryData } from "../services/category.service";
 dotenv.config();
 
@@ -15,7 +15,7 @@ export const addCategory = async (req: AuthorizedRequest, res: Response) => {
         return;
     }
 
-    const categoryUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const categoryUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
     try {
         const categoryData = {
@@ -43,12 +43,12 @@ export const updateCategory = async (req: AuthorizedRequest, res: Response) => {
         }
 
         if (file) {
-            const categoryUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+            const categoryUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
 
             // Delete Image
             const imagePath = categoryData[0]?.imagePath ?? undefined; // Ensure it's `undefined` instead of `null`
             if (imagePath) {
-                await deleteImageS3(imagePath);
+                await deleteVpsUpload(imagePath);
             }
 
             // Insert Data
@@ -104,7 +104,7 @@ export const deleteCategory = async (req: AuthorizedRequest, res: Response) => {
         // Ensure imagePath is valid
         const imagePath = categoryData[0]?.imagePath ?? undefined;
         if (imagePath) {
-            await deleteImageS3(imagePath);
+            await deleteVpsUpload(imagePath);
         }
 
         await deleteCategoryData(categoryId);

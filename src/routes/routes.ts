@@ -216,11 +216,11 @@ router.delete('/ads/poster', validateBody(deleteAdsPosterValidation, RouteSource
 })
 
 // Category
-router.post('/category', upload.single('image'), validateBody(addCategoryValidation), (req, res, next) => {
+router.post('/category', vpsUpload.single('image'), validateBody(addCategoryValidation), (req, res, next) => {
 	addCategory(req, res).catch(next);
 })
 
-router.put('/category', upload.single('image'), validateBody(updateCategoryValidation), (req, res, next) => {
+router.put('/category', vpsUpload.single('image'), validateBody(updateCategoryValidation), (req, res, next) => {
 	updateCategory(req, res).catch(next);
 })
 
