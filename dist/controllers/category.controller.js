@@ -26,7 +26,7 @@ const addCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(http_status_codes_1.StatusCodes.BAD_REQUEST).send({ error: 'Image file is missing.' });
         return;
     }
-    const categoryUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+    const categoryUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
     try {
         const categoryData = {
             name: (_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.name,
@@ -52,11 +52,11 @@ const updateCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
             return;
         }
         if (file) {
-            const categoryUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.key}`;
+            const categoryUrl = `https://vrfashionjewelleary.in/uploads/images/${req.file.filename}`;
             // Delete Image
             const imagePath = (_b = (_a = categoryData[0]) === null || _a === void 0 ? void 0 : _a.imagePath) !== null && _b !== void 0 ? _b : undefined; // Ensure it's `undefined` instead of `null`
             if (imagePath) {
-                yield (0, global_1.deleteImageS3)(imagePath);
+                yield (0, global_1.deleteVpsUpload)(imagePath);
             }
             // Insert Data
             yield (0, category_service_1.updateCategoryData)(Object.assign(Object.assign({}, bodyData), { imagePath: categoryUrl }));
@@ -107,7 +107,7 @@ const deleteCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
         // Ensure imagePath is valid
         const imagePath = (_b = (_a = categoryData[0]) === null || _a === void 0 ? void 0 : _a.imagePath) !== null && _b !== void 0 ? _b : undefined;
         if (imagePath) {
-            yield (0, global_1.deleteImageS3)(imagePath);
+            yield (0, global_1.deleteVpsUpload)(imagePath);
         }
         yield (0, category_service_1.deleteCategoryData)(categoryId);
         return res.status(http_status_codes_1.StatusCodes.OK).send({ success: true, message: "Category data deleted." });

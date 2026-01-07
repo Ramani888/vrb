@@ -184,10 +184,10 @@ router.delete('/ads/poster', (0, bodyValidate_middleware_1.validateBody)(adsPost
     (0, adsPoster_controller_1.deleteAdsPoster)(req, res).catch(next);
 });
 // Category
-router.post('/category', upload.single('image'), (0, bodyValidate_middleware_1.validateBody)(category_validate_1.addCategoryValidation), (req, res, next) => {
+router.post('/category', vpsUpload.single('image'), (0, bodyValidate_middleware_1.validateBody)(category_validate_1.addCategoryValidation), (req, res, next) => {
     (0, category_controller_1.addCategory)(req, res).catch(next);
 });
-router.put('/category', upload.single('image'), (0, bodyValidate_middleware_1.validateBody)(category_validate_1.updateCategoryValidation), (req, res, next) => {
+router.put('/category', vpsUpload.single('image'), (0, bodyValidate_middleware_1.validateBody)(category_validate_1.updateCategoryValidation), (req, res, next) => {
     (0, category_controller_1.updateCategory)(req, res).catch(next);
 });
 router.get('/category', (req, res, next) => {
