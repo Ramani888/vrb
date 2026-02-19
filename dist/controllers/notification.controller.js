@@ -27,6 +27,10 @@ const sendBulkPushNotification = (tokenData, bodyData) => __awaiter(void 0, void
 });
 exports.sendBulkPushNotification = sendBulkPushNotification;
 const sendPushNotification = (token, bodyData) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!aws_config_1.default) {
+        console.error('Firebase Admin is not initialized');
+        return;
+    }
     const payload = {
         notification: {
             title: bodyData === null || bodyData === void 0 ? void 0 : bodyData.title,
@@ -54,6 +58,9 @@ const sendPushNotification = (token, bodyData) => __awaiter(void 0, void 0, void
 });
 exports.sendPushNotification = sendPushNotification;
 const veryfyToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!aws_config_1.default) {
+        throw new Error('Firebase Admin is not initialized');
+    }
     return aws_config_1.default.messaging().send({
         token: token
     }, true);

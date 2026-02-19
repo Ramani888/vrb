@@ -40,14 +40,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const admin = __importStar(require("firebase-admin"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-// Create a properly typed credential object
-const serviceAccountCredentials = {
-    projectId: process.env.PROJECT_ID,
-    privateKey: (_a = process.env.PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/g, '\n'),
-    clientEmail: process.env.CLIENT_EMAIL,
-};
-// Initialize Firebase Admin
-const firebaseAdmin = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccountCredentials),
-});
+// Check if Firebase credentials are available
+const hasFirebaseCredentials = process.env.PROJECT_ID &&
+    process.env.PRIVATE_KEY &&
+    process.env.CLIENT_EMAIL;
+let firebaseAdmin = null;
+if (hasFirebaseCredentials) {
+    try {
+        // Create a properly typed credential object
+        const serviceAccountCredentials = {
+            projectId: process.env.PROJECT_ID,
+            privateKey: (_a = process.env.PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/g, '\n'),
+            clientEmail: process.env.CLIENT_EMAIL,
+        };
+        // Initialize Firebase Admin
+        firebaseAdmin = admin.initializeApp({
+            credential: admin.credential.cert(serviceAccountCredentials),
+        });
+        console.log('Firebase Admin initialized successfully');
+    }
+    catch (error) {
+        console.error('Failed to initialize Firebase Admin:', error);
+    }
+}
+else {
+    console.warn('Firebase Admin credentials not found. Firebase features will be disabled.');
+    console.warn('Please add PROJECT_ID, PRIVATE_KEY, and CLIENT_EMAIL to your .env file');
+}
 exports.default = firebaseAdmin;
