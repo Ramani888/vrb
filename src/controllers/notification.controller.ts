@@ -15,6 +15,11 @@ export const sendBulkPushNotification = async (tokenData: any[], bodyData: any) 
 }
 
 export const sendPushNotification = async (token: string, bodyData: any) => {
+    if (!firebaseAdmin) {
+        console.error('Firebase Admin is not initialized');
+        return;
+    }
+
     const payload = {
         notification: {
             title: bodyData?.title,
@@ -42,6 +47,9 @@ export const sendPushNotification = async (token: string, bodyData: any) => {
 };
 
 export const veryfyToken = async (token: string) => {
+    if (!firebaseAdmin) {
+        throw new Error('Firebase Admin is not initialized');
+    }
     return firebaseAdmin.messaging().send({
         token: token
     }, true)
